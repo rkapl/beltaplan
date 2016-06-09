@@ -1,0 +1,59 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>Beltaplan Factorio planner</title>
+        <link rel="stylesheet" href="style.css" />
+        <script type="text/javascript" src="es6-collections.js">
+        </script>
+        <script type="text/javascript" src="main.js">
+        </script>
+    </head>
+    <body>
+        <div id="splash">
+            <div id="splash-text">
+                Loading ...
+            </div>
+        </div>
+        <ul class="toolbox" id="toolbox">
+            <li class="button">
+                Clear Plan
+            </li>
+            <li class="button" id="button-recalculate">
+                Recalculate
+            </li>
+            <br/>
+            <li class="button">
+                Bus
+            </li>
+            <li class="split button" id="new-producer-button">
+                <span>
+                    Factory
+                </span>
+                <span>
+                    <img id="selected-producer-image" src="img/grid.png" />                   
+                </span>
+            </li>
+            <li class="button">
+                Item Blocker
+            </li>
+            <li class="button">
+                Item Source
+            </li>
+            <li class="button">
+                Item Sink
+            </li>
+        </ul>
+        <ul class="toolbox" id="infobox">
+        </ul>
+        <div id="dialog">
+            <div id="dialog-window">
+                <div id="dialog-contents">
+                </div>
+            </div>
+        </div>
+        <div id="viewport">
+            <div class="viewport-background"></div>
+            <img src="img/selection.svg" id="selection-rectangle"/>
+        </div>
+    </body>
+</html>

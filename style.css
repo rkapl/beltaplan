@@ -1,0 +1,190 @@
+html{
+    font-family: sans-serif;
+}
+body{
+    overflow: hidden;
+}
+.hidden{
+    display: none !important;
+}
+
+#splash{
+    position: absolute;
+    display:flex;
+    left: 0px;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    z-index: 10;
+    background-color: green;
+    color: white;
+    justify-content: center;
+}
+#splash-text{
+    font-size: 20pt;
+    align-self: center;
+}
+#toolbox{
+    right: 40px;
+}
+.toolbox{
+    display: block;
+    position: absolute;
+    list-style-type: none;
+    
+    background-color: white;
+    padding: 10px;
+    border: 1px dashed black;
+}
+.toolbox li{
+    display: block;
+    width: 200px;
+    color: white;
+}
+.button{
+    background-color: green;
+    font-size: 13pt;
+    padding: 6px;
+    text-align: center;
+    cursor: pointer;
+    margin-top: 3px;
+    margin-bottom: 3px;
+}
+.button.split{
+    display:flex;
+    flex-direction: row;
+    padding: 1px;
+    padding-left: 6px;
+    padding-right: 6px;
+    align-content: stretch;
+}
+.button.split span:first-child{
+    padding: 5px;
+    flex-grow: 1;
+    width: 20px;
+}
+.button.split span:last-child{
+    display: flex;
+    flex-direction: row;
+    border-left: 1px solid white;
+    padding-left: 10px;
+    align-items: center;
+}
+.button.split span:last-child:after{
+    content: "\25BC";
+    font-size: 10pt;
+    padding-left: 5px;
+}
+.button.split img{
+    width: 32px;
+    height: 32px;
+}
+#viewport{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: -10;
+}
+#viewport .tile{
+    position: absolute;
+    width: 96px;
+    height: 96px;
+}
+#viewport .viewport-background{
+    position: absolute;
+    background-image: url('img/grid.png');
+}
+#selection-rectangle{
+    z-index: 100;
+    position: absolute;
+    display: none;
+}
+#infobox{
+    right: 40px;
+    bottom: 20px;
+    width: 250px;
+    height: 300px;
+}
+#infobox h3{
+    margin: 0px;
+    font-size: 18px;
+}
+#infobox > div{
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+#infobox label{
+    font-weight: bold;
+    padding-right: 1em;
+}
+#infobox .action-button{
+    position: absolute;
+    bottom: 5px;
+}
+#infobox .d1{
+    right: 5px;
+}
+#infobox .d2{
+    right: 37px;
+}
+#infobox button{
+    background-color: green;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    color: white;
+    margin: auto;
+    display: block;
+}
+#infobox hr{
+    width: 70%;
+    border: none;
+    border-top: 1px solid gray;
+}
+.recipe{
+    text-align: center;
+}
+.recipe img{
+    vertical-align: middle;
+    padding-right: 0.5em;
+    padding-left: 0.3em;
+    width: 24px;
+    height: 24px;
+}
+.recipe span{
+    display: inline-block;
+}
+.recipe span.missing{
+    background-color: red;
+}
+
+#dialog{
+    display: none;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(128, 128, 128, 0.5);
+}
+#dialog-window{
+    border: 1px solid black;
+    background-color: white;
+    width: 600px;
+    min-height: 200px;
+    margin:auto;
+    margin-top: 200px;
+    padding: 10px;
+}
+#dialog-contents.select-recipe input{
+    width: 90%;
+    display: block;
+    margin: auto;
+    margin-bottom: 0.5em;
+}
+#dialog-contents.select-recipe img{
+    padding: 2px;
+}
+#dialog-contents.select-recipe img:hover{
+    background-color: green;
+}

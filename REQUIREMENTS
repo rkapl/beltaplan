@@ -1,0 +1,7 @@
+Data extractor:
+ lua 5.2
+ luarocks: luafilesystem serpent dkjson
+
+The client itself:
+ tsc
+
