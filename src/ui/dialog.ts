@@ -17,11 +17,14 @@ namespace Ui{
                     dlg.addEventListener(x, (ev) => ev.stopPropagation());
                 }
             }
-            dlg.style.display = 'block';
+            dlg.style.display = 'flex';
         }
         closeOk(){
             this.hide();
             this.cb(this);
+        }
+        closeCancel(){
+            this.hide();
         }
         hide(){
             while(this.html.hasChildNodes())

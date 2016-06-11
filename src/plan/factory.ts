@@ -56,13 +56,12 @@ namespace Plan{
             recipeButton.innerText = 'Change recipe';
             recipeButton.onclick =  () => {
                 var d = new Ui.SelectRecipe(this.plan, ()=>{
-                    this.setRecipe(d.recipe);
+                    this.setRecipe(d.selected);
                     this.updateState();
                 });
                 d.show();
             };
             box.appendChild(recipeButton);
-            box.appendChild(document.createElement('hr'));
         }
         isBusParticipant(): boolean{
             return true;
