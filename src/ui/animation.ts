@@ -59,14 +59,14 @@ namespace Ui{
         prepare(canvas: HTMLCanvasElement, orientation: Util.Orientation, shiftOut: Util.Vector){
             
             var rshift = <RejectedShift><any> canvas;
-            shiftOut.x = this.data.shift[0] * Plan.FACTORIO_TILE_SIZE;
-            shiftOut.y = this.data.shift[1] * Plan.FACTORIO_TILE_SIZE;
+            shiftOut.x = this.data.shift[0] * Ui.Sizes.FACTORIO_TILE_SIZE;
+            shiftOut.y = this.data.shift[1] * Ui.Sizes.FACTORIO_TILE_SIZE;
             canvas.width = this.data.width;
             // the canvas must always cover the whole tile, but may be larger
-            if(canvas.width + shiftOut.x < Plan.FACTORIO_TILE_SIZE)
-                canvas.width = Plan.FACTORIO_TILE_SIZE - shiftOut.x;
-            if(canvas.height + shiftOut.y < Plan.FACTORIO_TILE_SIZE)
-                canvas.width = Plan.FACTORIO_TILE_SIZE - shiftOut.y;
+            if(canvas.width + shiftOut.x < Ui.Sizes.FACTORIO_TILE_SIZE)
+                canvas.width = Ui.Sizes.FACTORIO_TILE_SIZE - shiftOut.x;
+            if(canvas.height + shiftOut.y < Ui.Sizes.FACTORIO_TILE_SIZE)
+                canvas.width = Ui.Sizes.FACTORIO_TILE_SIZE - shiftOut.y;
             canvas.height = this.data.height;
             canvas.style.width = canvas.width + 'px';
             canvas.style.height = canvas.height + 'px';

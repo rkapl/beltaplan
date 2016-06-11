@@ -5,27 +5,36 @@ namespace Plan{
         factorioItem: GameData.Item;
     } 
     
-    export class Bus extends Tile{
-        canvas: HTMLCanvasElement;
-        // padding between then belt and tile
-        private border = TILE_SIZE/9;
+    enum BusConnection{
+        NO, IN, OUT
+    };
+    
+    export class Bus extends TileBase{
+        
+        // padding between then belt and tile (for the UI)
+        private border = Ui.Sizes.TILE_SIZE/9;
+        
+        // relationship with neighbors
         inputs: Set<Bus> = new Set();
-        outputs: Set<Bus> = new Set();;
+        outputs: Set<Bus> = new Set();
+        //indexed by direction
+        busConnections: BusConnection[] = [BusConnection.NO, BusConnection.NO, BusConnection.NO, BusConnection.NO];
+        directParticipants: Set<BusParticipant> = new Set();
+        
+        // data from the bus calculation algorithms
         // all items available at this tile with the possible sources (computed by update_bus)
-        items: Map<GameData.Item, Set<BusParticipant>> =  new Map<GameData.Item, Set<BusParticipant>>();
-        // all BusProviders connected directly to this bus (computed by update_peer)
-        connected: Set<BusParticipant> = new Set();
+        items: Map<GameData.Item, Set<BusParticipant>> =  new Map<GameData.Item, Set<BusParticipant>>();        
         itemIcons: HTMLImageElement[] = [];
+        // used by the BFS graph algorithms
         solved: boolean;
         
         constructor(public plan: Plan){
-            super(plan, 'canvas');
-            this.canvas = <HTMLCanvasElement>this.peer;
-            this.canvas.width = this.canvas.height = TILE_SIZE;
+            super(plan);
         }
-        remove(){
-            super.remove();
+        destroy(){
+            super.destroy();
             this.removeBusStart();
+            this.removeBusEnd();
         }
         removeBusStart(){
             var idx = this.plan.busStarts.indexOf(this);
@@ -37,71 +46,63 @@ namespace Plan{
             if(idx != -1)
                 this.plan.busEnds.splice(idx, 1);
         }
-        updatePeer(){
-            super.updatePeer();
-            var ctx = this.canvas.getContext('2d');
-            ctx.clearRect(0,0, this.canvas.width, this.canvas.height);
-            var n:Tile[] = [];
-            for(var i = 0; i<4; i++){
-                n.push(this.getNeighbour(i));
-            }
-            var border = this.border;
-            
-            ctx.fillStyle = 'grey';
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 3;
-            ctx.fillRect(border, border, TILE_SIZE - border*2, TILE_SIZE - border*2);
-
+        private isOrientedTowards(neighbor: Util.Orientation){
+            var t = this.getNeighbour(neighbor);
+            return t.orientation == Util.oppositeOrientation(neighbor);
+        }
+        private isOrientedOutwards(neighbor: Util.Orientation){
+            var t = this.getNeighbour(neighbor);
+            return t.orientation == neighbor;
+        }
+        updateState(){
+            this.directParticipants.clear();
             this.inputs.clear();
-            this.outputs.clear();
-
-            var east = this.getNeighbourOriented(Util.Orientation.EAST);
-            var west = this.getNeighbourOriented(Util.Orientation.WEST);
-            var south = this.getNeighbourOriented(Util.Orientation.SOUTH);
-            var north = this.getNeighbourOriented(Util.Orientation.NORTH);
-            
-            // figure out the inputs and outputs
-            if(east instanceof Bus && east.orientation == this.orientation){
-                this.drawOpen(ctx, Util.Orientation.EAST)
-                this.inputs.add(<Bus>east);
-            }else{
-                this.drawClosed(ctx, Util.Orientation.EAST);
+            this.outputs.clear;
+            // first check bus participants, reset bus connections
+            for(var i = 0; i <4; i++){
+                var t = this.getNeighbour(i);
+                this.busConnections[i] = BusConnection.NO;  
+                if(t && t.isBusParticipant())
+                    this.directParticipants.add(<BusParticipant><any>t);
             }
-                     
+            // now check for connected buses - we work relative to the NORTH of our bus tile
+            var northAbsolute = Util.addOrientation(this.orientation, Util.Orientation.NORTH);
+            var westAbsolute = Util.addOrientation(this.orientation, Util.Orientation.WEST);
+            var eastAbsolute = Util.addOrientation(this.orientation, Util.Orientation.EAST);
+            var southAbsolute = Util.addOrientation(this.orientation, Util.Orientation.SOUTH);
+            var north = this.getNeighbour(northAbsolute);
+            var west = this.getNeighbour(westAbsolute);
+            var east = this.getNeighbour(eastAbsolute);
+            var south = this.getNeighbour(southAbsolute);
             
-            if(west instanceof Bus && west.orientation != Util.oppositeOrientation(this.orientation)){
-                this.drawOpen(ctx, Util.Orientation.WEST);
-                this.outputs.add(<Bus>west);
-            }else{
-                this.drawClosed(ctx, Util.Orientation.WEST);
-            }
-            
-            //TODO
-            this.drawClosed(ctx, Util.Orientation.NORTH);
-            this.drawClosed(ctx, Util.Orientation.SOUTH);
-            
-            ctx.strokeStyle = 'yellow';
-            ctx.lineWidth = 6;
-            ctx.beginPath();
-            ctx.moveTo(TILE_SIZE/2 + 5, TILE_SIZE/2 - 15);
-            ctx.lineTo(TILE_SIZE/2 - 5, TILE_SIZE/2);
-            ctx.lineTo(TILE_SIZE/2 + 5, TILE_SIZE/2 + 15);
-            ctx.stroke();
-            
-            // find bus participants
-            this.connected.forEach((c)=>{
-                c.connectedTo = null;
-            });
-            this.connected.clear();
-            for(var d = 0; d<4; d++){
-                var t = this.getNeighbour(d);
-                if(t && t.orientation == Util.oppositeOrientation(d) && t.isBusParticipant()){
-                    var bp = <BusParticipant><any> t;
-                    bp.connectedTo = this;
-                    this.connected.add(bp);
-                }
+            if(north instanceof Bus && this.isOrientedOutwards(northAbsolute))
+                this.busConnections[northAbsolute] = BusConnection.OUT;
+            if(south instanceof Bus && this.isOrientedTowards(southAbsolute))
+                this.busConnections[southAbsolute] = BusConnection.IN;
+                    
+            if(west instanceof Bus){ 
+                if(this.isOrientedTowards(westAbsolute))
+                    this.busConnections[westAbsolute] = BusConnection.IN;
+                else if(this.isOrientedOutwards(westAbsolute))
+                    this.busConnections[westAbsolute] = BusConnection.OUT;
             }
             
+            if(east instanceof Bus){
+                if(this.isOrientedTowards(eastAbsolute))
+                    this.busConnections[eastAbsolute] = BusConnection.OUT;
+                else if(this.isOrientedTowards(eastAbsolute))
+                    this.busConnections[eastAbsolute] = BusConnection.IN;
+            }
+            
+            // store inputs and outputs
+            for(var i = 0; i<4; i++){
+                if(this.busConnections[i] == BusConnection.IN)
+                    this.inputs.add(<Bus>this.getNeighbour(i));
+                else if(this.busConnections[i] == BusConnection.OUT)
+                    this.outputs.add(<Bus>this.getNeighbour(i));
+            }
+            
+            // register us as bus ends/starts
             this.removeBusStart();
             this.removeBusEnd();
             if(this.inputs.size == 0)
@@ -109,8 +110,57 @@ namespace Plan{
             if(this.outputs.size == 0)
                 this.plan.busEnds.push(this);
             
+            super.updateState();
+        }
+        updateHtml(){
+            super.updateHtml();
+            var canvas = <HTMLCanvasElement>this.html;
+            
+            var ctx = canvas.getContext('2d');
+            ctx.clearRect(0,0, canvas.width, canvas.height);
+            var border = this.border;
+            
+            // draw the middle rectangle
+            ctx.fillStyle = 'grey';
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 3;
+            ctx.fillRect(border, border, Ui.Sizes.TILE_SIZE - border*2, Ui.Sizes.TILE_SIZE - border*2);
+            
+            // draw the arrow with appropriate rotation
             ctx.save();
-            ctx.shadowOffsetX = -3;
+            ctx.strokeStyle = 'yellow';
+            ctx.lineWidth = 6;
+            
+            ctx.translate(Ui.Sizes.TILE_SIZE/2, Ui.Sizes.TILE_SIZE/2);
+            ctx.rotate(this.orientation * Math.PI/2);
+            ctx.beginPath();
+            ctx.moveTo(-Ui.Sizes.TILE_SIZE/2 + 25, 5);
+            ctx.lineTo(0, -5);
+            ctx.lineTo(Ui.Sizes.TILE_SIZE/2 - 25, 5);
+            ctx.stroke();
+            ctx.restore();
+            
+            // draw a "connector" to neighbouring buses or a bus border if there is 
+            // no neighbor
+            for(var i = 0; i<4; i++){
+                ctx.save();
+                this.rotateContext(ctx, i);
+                if(this.busConnections[i] != BusConnection.NO)
+                    this.drawOpen(ctx);
+                ctx.restore();
+            }
+            
+            for(var i = 0; i<4; i++){
+                ctx.save();
+                this.rotateContext(ctx, i);
+                if(this.busConnections[i] == BusConnection.NO)
+                    this.drawClosed(ctx);
+                ctx.restore();
+            }
+                    
+            // draw icons for transported goods
+            ctx.save();
+            ctx.shadowOffsetX = 3;
             ctx.shadowColor = 'black';
             ctx.shadowBlur = 5;
             
@@ -118,22 +168,16 @@ namespace Plan{
             for(var i = 0; i<this.itemIcons.length; i++){
                 if(!this.itemIcons[i])
                     continue;
-                var x = gridSize - Math.floor(i / gridSize) - 1;
+                var x = Math.floor(i / gridSize);
                 var y = i % gridSize;
-                var iconSize = (TILE_SIZE - border*2)/gridSize;
+                var iconSize = (Ui.Sizes.TILE_SIZE - border*2)/gridSize;
                 var grow = iconSize/10;
                 
-                // counteract the rotation of the tile so that icons are always facing up
-                ctx.save();
-                ctx.translate(border + (x+0.5)*iconSize, border + (y+0.5)*iconSize)
-                ctx.rotate(-this.orientation*Math.PI/2);
                 ctx.drawImage(this.itemIcons[i],
-                    -iconSize/2 - grow, -iconSize/2 - grow,
+                    this.border + x * iconSize - grow, this.border + y * iconSize - grow,
                     iconSize + grow*2, iconSize + grow*2);
-                ctx.restore();
             }                            
             ctx.restore();
-            
         }
         // called by update_bus after the bus is computed (in BFS order)
         updateIcons(){
@@ -172,44 +216,39 @@ namespace Plan{
                 else
                     this.itemIcons[lastInsertPos] = this.imageForItem(item);
             });
-            this.updatePeer();
+            if(this.html)
+                this.updateHtml();
         }
         private imageForItem(item: GameData.Item){
             var img = new Image();
             img.src = this.plan.dataPrefix + item.icon;
-            img.onload = () => this.updatePeer();
+            img.onload = () => this.updateHtml();
             (<FactorioItemMixin><any>img).factorioItem = item;
             return img;
         }
-        private drawOpen(ctx: CanvasRenderingContext2D, o: Util.Orientation){
-            ctx.save();
-            ctx.translate(TILE_SIZE/2, TILE_SIZE/2);
+        private rotateContext(ctx: CanvasRenderingContext2D, o: Util.Orientation){
+            ctx.translate(Ui.Sizes.TILE_SIZE/2, Ui.Sizes.TILE_SIZE/2);
             ctx.rotate(o * Math.PI / 2);
-            ctx.translate(-TILE_SIZE/2, -TILE_SIZE/2);
-            ctx.fillRect(0, this.border, this.border*2, TILE_SIZE - this.border*2);
+            ctx.translate(-Ui.Sizes.TILE_SIZE/2, -Ui.Sizes.TILE_SIZE/2);
+        }
+        private drawOpen(ctx: CanvasRenderingContext2D){
+            ctx.fillRect(this.border, 0, Ui.Sizes.TILE_SIZE - this.border*2, this.border*2);
             
             ctx.beginPath();
-            ctx.moveTo(0, this.border);
+            ctx.moveTo(this.border, 0);
             ctx.lineTo(this.border, this.border);
             ctx.stroke();
             
             ctx.beginPath();
-            ctx.moveTo(0, TILE_SIZE - this.border);
-            ctx.lineTo(this.border, TILE_SIZE - this.border);
+            ctx.moveTo(Ui.Sizes.TILE_SIZE - this.border, 0);
+            ctx.lineTo(Ui.Sizes.TILE_SIZE - this.border, this.border);
             ctx.stroke();
-            
-            ctx.restore()
         }
-        private drawClosed(ctx: CanvasRenderingContext2D, o: Util.Orientation){
-            ctx.save();
-            ctx.translate(TILE_SIZE/2, TILE_SIZE/2);
-            ctx.rotate(o * Math.PI / 2);
-            ctx.translate(-TILE_SIZE/2, -TILE_SIZE/2);
-            ctx.beginPath();
+        private drawClosed(ctx: CanvasRenderingContext2D){
+            ctx.beginPath();          
             ctx.moveTo(this.border, this.border);
-            ctx.lineTo(this.border, TILE_SIZE - this.border);
+            ctx.lineTo(Ui.Sizes.TILE_SIZE - this.border, this.border);
             ctx.stroke()
-            ctx.restore()
         }
     }
     

@@ -6,6 +6,7 @@ namespace App{
     var selectedProducer: GameData.Producer;
     var defaultProducer: GameData.Producer
     var plan: Plan.Plan;
+    var viewport: Ui.Viewport;
     
     var selectedTile: Plan.Tile;
     
@@ -19,19 +20,19 @@ namespace App{
     }
     function handlers(){
         document.getElementById("viewport").addEventListener('click', (ev) => {
-           var grid =  plan.clientToGrid(new Util.Vector(ev.clientX, ev.clientY));
+           var grid =  viewport.clientToGrid(new Util.Vector(ev.clientX, ev.clientY));
            grid.floor();
            var tile = plan.get(grid);
            if(tile){
                var selection = document.getElementById('selection-rectangle');
                var infobox = document.getElementById('infobox');
                if(selectedTile){
-                   selectedTile.hideInfo(infobox);
+                   selectedTile.hideInfo();
                }
                selectedTile = tile;
                tile.showInfo(infobox);
-               selection.style.left = grid.x*Plan.TILE_SIZE + 'px';
-               selection.style.top = grid.y*Plan.TILE_SIZE + 'px';
+               selection.style.left = grid.x * Ui.Sizes.TILE_SIZE + 'px';
+               selection.style.top = grid.y * Ui.Sizes.TILE_SIZE + 'px';
                selection.style.display = 'block';
            }
         });
@@ -47,7 +48,9 @@ namespace App{
         });
     }
     function createDefaultPlan(){
-        plan = new Plan.Plan(document.getElementById("viewport"), dataPrefix, data);
+        viewport = new Ui.Viewport(document.getElementById("viewport"))
+        plan = new Plan.Plan(dataPrefix, data);
+        viewport.showPlan(plan);
         for(var i = 0; i < 10; i++){
             var bus = new Plan.Bus(plan);
             bus.orientation = Util.Orientation.EAST;

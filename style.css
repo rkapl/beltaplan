@@ -120,6 +120,7 @@ body{
 #infobox .action-button{
     position: absolute;
     bottom: 5px;
+    cursor: pointer;
 }
 #infobox .d1{
     right: 5px;

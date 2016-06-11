@@ -6,7 +6,7 @@ namespace Plan{
             super(plan);
         }
         underlay(ctx: CanvasRenderingContext2D){
-            ctx.drawImage(this.plan.resourceBlock, 0, 0);
+            ctx.drawImage(this.viewport.resourceBlock, 0, 0);
         }
     }
 }

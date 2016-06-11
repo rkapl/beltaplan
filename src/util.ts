@@ -40,19 +40,17 @@ namespace Util{
             }
         }
     }
-    export enum Orientation{WEST, NORTH, EAST, SOUTH}
+    export enum Orientation{NORTH, EAST, SOUTH, WEST}
     export function oppositeOrientation(o: Orientation): Orientation{
-        switch(o){
-            case Orientation.NORTH:
-                return Orientation.SOUTH;
-            case Orientation.EAST:
-                return Orientation.WEST;
-            case Orientation.SOUTH:
-                return Orientation.NORTH;
-            case Orientation.WEST:
-                return Orientation.EAST;
-        }
+        return addOrientation(o, Orientation.SOUTH);
     }
+    export function addOrientation(a: Orientation, b: Orientation){
+        return mod((a+b), 4);
+    }
+    export function subOrientation(a: Orientation, b: Orientation){
+        return mod((a-b), 4);
+    }
+    
     export function mod(x: number, y:number): number{
         //http://stackoverflow.com/questions/4467539/javascript-modulo-not-behaving
         return (x % y + y) % y;
