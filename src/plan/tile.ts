@@ -15,7 +15,9 @@ namespace Plan{
         showInfo(box: HTMLElement);
         hideInfo();
         updateInfo();
+        
         createHtml(vp: Ui.Viewport);
+        updateHtml()
         removeHtml();
     }
     
@@ -144,7 +146,6 @@ namespace Plan{
     export class ItemTile extends TileBase{   
         item: GameData.Item;
         itemIcon: HTMLImageElement;
-        rate: number = 1;
         constructor(plan: Plan){
             super(plan);
         }

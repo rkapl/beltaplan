@@ -6,6 +6,10 @@ namespace Plan{
         needs: Set<GameData.Item>;
         setMissing(missing: Set<GameData.Item>);
     }
+    
+    class LoopException{
+        
+    }
          
     export class Plan{
         public busStarts: Bus[] = [];
@@ -52,7 +56,38 @@ namespace Plan{
             }
         }
         
+        private checkLoop(roots: Bus[], next: (bus: Bus) => Set<Bus>): boolean{
+            this.forAllBusses((t: Bus) => {
+                t.solved = t.visited = false;
+            });
+            
+            var visit = (b: Bus) => {
+                if(b.visited)
+                    throw new LoopException();
+                if(b.solved) return;
+                
+                b.visited = true;
+                next(b).forEach((nb: Bus) => visit(nb));
+                b.visited = false;
+                b.solved = true;
+            };
+            
+            try{
+                for(var i = 0; i<roots.length; i++)
+                    visit(roots[i]);
+            }catch (e){
+                return false;
+            }
+                
+            return true;
+        }
+        
         updateBus(){
+            if(!this.checkLoop(this.busStarts, (bus) => bus.outputs)){
+                alert("There is a loop on your bus");
+                return;
+            }
+            
             // clear
             this.forAllBusses((t: Bus) => {
                 t.items.clear();
@@ -124,6 +159,10 @@ namespace Plan{
                 },
                 (bus: Bus) => bus.inputs
             );
+            // and show the results
+            this.forAllBusses((b) => b.updateIcons());
+            if(this.viewport)
+                this.forAllTiles((t) => t.updateHtml());
         }
         private reportError(t: Tile, problem: string){
             alert(problem);

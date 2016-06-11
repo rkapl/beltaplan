@@ -25,8 +25,9 @@ namespace Plan{
         // all items available at this tile with the possible sources (computed by update_bus)
         items: Map<GameData.Item, Set<BusParticipant>> =  new Map<GameData.Item, Set<BusParticipant>>();        
         itemIcons: HTMLImageElement[] = [];
-        // used by the BFS graph algorithms
+        // used by the graph algorithms
         solved: boolean;
+        visited: boolean;
         
         constructor(public plan: Plan){
             super(plan);
@@ -62,7 +63,7 @@ namespace Plan{
             for(var i = 0; i <4; i++){
                 var t = this.getNeighbour(i);
                 this.busConnections[i] = BusConnection.NO;  
-                if(t && t.isBusParticipant())
+                if(t && t.isBusParticipant() && this.isOrientedTowards(i))
                     this.directParticipants.add(<BusParticipant><any>t);
             }
             // now check for connected buses - we work relative to the NORTH of our bus tile
@@ -75,9 +76,9 @@ namespace Plan{
             var east = this.getNeighbour(eastAbsolute);
             var south = this.getNeighbour(southAbsolute);
             
-            if(north instanceof Bus && this.isOrientedOutwards(northAbsolute))
+            if(north instanceof Bus && !this.isOrientedTowards(northAbsolute))
                 this.busConnections[northAbsolute] = BusConnection.OUT;
-            if(south instanceof Bus && this.isOrientedTowards(southAbsolute))
+            if(south instanceof Bus && !this.isOrientedOutwards(southAbsolute))
                 this.busConnections[southAbsolute] = BusConnection.IN;
                     
             if(west instanceof Bus){ 
@@ -89,9 +90,9 @@ namespace Plan{
             
             if(east instanceof Bus){
                 if(this.isOrientedTowards(eastAbsolute))
-                    this.busConnections[eastAbsolute] = BusConnection.OUT;
-                else if(this.isOrientedTowards(eastAbsolute))
                     this.busConnections[eastAbsolute] = BusConnection.IN;
+                else if(this.isOrientedOutwards(eastAbsolute))
+                    this.busConnections[eastAbsolute] = BusConnection.OUT;
             }
             
             // store inputs and outputs
@@ -216,8 +217,6 @@ namespace Plan{
                 else
                     this.itemIcons[lastInsertPos] = this.imageForItem(item);
             });
-            if(this.html)
-                this.updateHtml();
         }
         private imageForItem(item: GameData.Item){
             var img = new Image();

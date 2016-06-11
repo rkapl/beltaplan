@@ -23,7 +23,6 @@ namespace Plan{
             ctx.font = "14px sans-serif";
             ctx.textAlign = "center";
             ctx.textBaseline = "center";
-            ctx.fillText(this.rate + " ips", Ui.Sizes.FACTORIO_TILE_SIZE*1.5, Ui.Sizes.FACTORIO_TILE_SIZE*2.5);
         }
         setMissing(missing: any){
             // can not happen
