@@ -110,9 +110,8 @@ body{
     right: 40px;
     bottom: 20px;
     width: 250px;
-    height: 200px;
 }
-#infobox > div{
+#infobox .contents > div{
     margin-top: 5px;
     margin-bottom: 5px;
 }
@@ -124,17 +123,15 @@ body{
     font-weight: bold;
     padding-right: 1em;
 }
+#infobox .contents{
+    overflow-y: auto;
+    height: 200px;
+}
 #infobox .action-button{
-    position: absolute;
-    bottom: 5px;
     cursor: pointer;
     width: 20px;
-}
-#infobox .d1{
-    right: 5px;
-}
-#infobox .d2{
-    right: 37px;
+    padding: 3px;
+    float: right;
 }
 #infobox button{
     background-color: green;
@@ -167,6 +164,14 @@ body{
 }
 .recipe span.missing{
     background-color: red;
+}
+.bus-contents{
+    font-size: 12pt;
+}
+.bus-contents img{
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
 }
 
 

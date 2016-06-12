@@ -4,6 +4,8 @@ namespace Plan{
         connectedTo: Bus;
         provides: Set<GameData.Item>;
         needs: Set<GameData.Item>;
+        blocks: Set<GameData.Item>;
+        
         setMissing(missing: Set<GameData.Item>);
     }
     
@@ -103,23 +105,28 @@ namespace Plan{
             };
             // propagate sources (factories providing some items)
             this.bfsBus(this.busStarts,
-                (bus: Bus) => {
-                    bus.inputs.forEach( (inputs) => {
-                        inputs.items.forEach((sources, item) => {
-                            sources.forEach((source) => addItemSource(bus, item, source));
-                        }); 
+                (bus: Bus) => {                                       
+                    bus.inputs.forEach( (input) => {                        
+                        input.items.forEach((sources, item) => {
+                            if(!input.blocked.has(item))
+                                sources.forEach((source) => addItemSource(bus, item, source));
+                        });
                     });
                     
+                    bus.blocked.clear();
                     bus.directParticipants.forEach((c) => {
                         var missing = new Set();
                         c.needs.forEach((needs) => {
                             if(!bus.items.has(needs)){
                                 missing.add(needs);
-                            }                     
+                            }             
                         });
+                        
+                        c.blocks.forEach((b) => bus.blocked.add(b));
+                        
                         c.setMissing(missing);
                         if(missing.size == 0) 
-                            c.provides.forEach((item) => addItemSource(bus, item, c)); 
+                            c.provides.forEach((item) => addItemSource(bus, item, c));
                     });
                     
                     return bus.outputs;
@@ -134,6 +141,11 @@ namespace Plan{
                     // populate needed from directly connected BusParticipants
                     bus.directParticipants.forEach((c) => {
                        c.needs.forEach((n) => {
+                           needed.add(n)
+                       });
+                       // we also include blocks, so that the stream of items
+                       // visibily ends at the block
+                       c.blocks.forEach((n) => {
                            needed.add(n)
                        });
                     });

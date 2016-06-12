@@ -8,6 +8,7 @@ namespace Plan{
         connectedTo: Bus;
         needs: Set<GameData.Item> = new Set();
         provides: Set<GameData.Item> = new Set();
+        blocks: Set<GameData.Item> = new Set();;
         providesItem: GameData.Item;
         
         constructor(plan: Plan){
@@ -32,11 +33,11 @@ namespace Plan{
         }
         showInfo(box: HTMLElement){
             super.showInfo(box);
-            this.showInfoStandardButtons();
+            var contents = this.showInfoStandardButtons();
             
             var header = document.createElement('h3');
             header.textContent = this.providesItem.name + " source";
-            box.appendChild(header);
+            contents.appendChild(header);
             
             var itemButton = document.createElement('button');
             itemButton.innerText = 'Change produced item';
@@ -47,7 +48,7 @@ namespace Plan{
                 });
                 d.show();
             };
-            box.appendChild(itemButton);
+            contents.appendChild(itemButton);
         }
     }
 }

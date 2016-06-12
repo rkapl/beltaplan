@@ -57,6 +57,11 @@ namespace App{
                 s.setItem(placementDefaultItem);
                 return s;
             }),
+            new PlaceButton('button-place-sink', () => {
+               var s = new Plan.Sink(plan);
+               s.setItem(placementDefaultItem);
+               return s; 
+            })
         ];
         for(var i = 0; i< placementButtons.length; i++){
             ((b: PlaceButton) => {

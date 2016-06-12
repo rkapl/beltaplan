@@ -6,6 +6,7 @@ namespace Plan{
         recipe: GameData.Recipe;
         needs: Set<GameData.Item>;
         provides: Set<GameData.Item>;
+        blocks: Set<GameData.Item> =  new Set();
         missing: Set<GameData.Item> = new Set();
         connectedTo: Bus;
         recipeIcon: HTMLImageElement;
@@ -18,15 +19,15 @@ namespace Plan{
         }
         showInfo(box: HTMLElement){
             super.showInfo(box);
-            this.showInfoStandardButtons();
+            var contents = this.showInfoStandardButtons();
             
             var title = document.createElement('h3');
             title.innerText = this.type.name;
-            box.appendChild(title);
+            contents.appendChild(title);
             
             var recipe = document.createElement('div');
             recipe.classList.add('recipe');
-            box.appendChild(recipe);
+            contents.appendChild(recipe);
             
             for(var needs of this.recipe.ingredients){
                 var ingredient = document.createElement('span');
@@ -61,7 +62,7 @@ namespace Plan{
                 });
                 d.show();
             };
-            box.appendChild(recipeButton);
+            contents.appendChild(recipeButton);
         }
         isBusParticipant(): boolean{
             return true;

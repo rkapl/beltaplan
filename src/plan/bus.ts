@@ -23,7 +23,8 @@ namespace Plan{
         
         // data from the bus calculation algorithms
         // all items available at this tile with the possible sources (computed by update_bus)
-        items: Map<GameData.Item, Set<BusParticipant>> =  new Map<GameData.Item, Set<BusParticipant>>();        
+        items: Map<GameData.Item, Set<BusParticipant>> =  new Map<GameData.Item, Set<BusParticipant>>();
+        blocked: Set<GameData.Item> = new Set();       
         itemIcons: HTMLImageElement[] = [];
         // used by the graph algorithms
         solved: boolean;
@@ -126,7 +127,7 @@ namespace Plan{
             ctx.strokeStyle = 'black';
             ctx.lineWidth = 3;
             ctx.fillRect(border, border, Ui.Sizes.TILE_SIZE - border*2, Ui.Sizes.TILE_SIZE - border*2);
-            
+           
             // draw the arrow with appropriate rotation
             ctx.save();
             ctx.strokeStyle = 'yellow';
@@ -254,7 +255,25 @@ namespace Plan{
         }
         showInfo(box: HTMLElement){
             super.showInfo(box);
-            this.showInfoStandardButtons();
+            var contents = this.showInfoStandardButtons();
+            var table = document.createElement('table');
+            table.classList.add('bus-contents');
+            this.items.forEach((_, item) => {
+                var tr = document.createElement('tr');
+                
+                var iconTd = document.createElement('td');
+                var icon = document.createElement('img');;
+                icon.src = this.plan.dataPrefix + item.icon;
+                iconTd.appendChild(icon);                
+                tr.appendChild(iconTd);
+                
+                var nameTd = document.createElement('td');
+                nameTd.innerText = item.name;
+                tr.appendChild(nameTd);
+                
+                table.appendChild(tr);
+            });
+            contents.appendChild(table);
         }
     }
     

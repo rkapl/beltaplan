@@ -86,20 +86,29 @@ namespace Plan{
             this.infoBox.appendChild(title);
         }
         
-        showInfoStandardButtons(){
+        showInfoStandardButtons(): HTMLDivElement{
+            var footer = document.createElement('div');
+            footer.classList.add('footer');
             var rotate = new Image();
             rotate.src = 'img/rotate.svg';
             rotate.classList.add('action-button');
             rotate.classList.add('d1');
             rotate.addEventListener('click', ()=> this.rotate());
-            this.infoBox.appendChild(rotate);
+            footer.appendChild(rotate);
             
             var deleteButton = new Image();
             deleteButton.src = 'img/delete.svg';
             deleteButton.classList.add('action-button');
             deleteButton.classList.add('d2');
             deleteButton.addEventListener('click', ()=> this.plan.set(this.position, null));
-            this.infoBox.appendChild(deleteButton);
+            footer.appendChild(deleteButton);
+            
+            var contents = document.createElement('div');
+            contents.classList.add('contents');
+            this.infoBox.appendChild(contents);
+            this.infoBox.appendChild(footer);
+            
+            return contents;
         }
         rotate(){
             this.orientation = (this.orientation+1)%4;
