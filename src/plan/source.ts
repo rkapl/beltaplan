@@ -8,7 +8,7 @@ namespace Plan{
         connectedTo: Bus;
         needs: Set<GameData.Item> = new Set();
         provides: Set<GameData.Item> = new Set();
-        needsItem: GameData.Item;
+        providesItem: GameData.Item;
         
         constructor(plan: Plan){
             super(plan);
@@ -17,7 +17,7 @@ namespace Plan{
             super.setItem(item);
             this.provides.clear();
             this.provides.add(item);
-            this.needsItem = item;
+            this.providesItem = item;
         }
         isBusParticipant():boolean{
             return true;
@@ -33,6 +33,10 @@ namespace Plan{
         showInfo(box: HTMLElement){
             super.showInfo(box);
             this.showInfoStandardButtons();
+            
+            var header = document.createElement('h3');
+            header.textContent = this.providesItem.name + " source";
+            box.appendChild(header);
             
             var itemButton = document.createElement('button');
             itemButton.innerText = 'Change produced item';

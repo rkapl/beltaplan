@@ -49,6 +49,7 @@ local function run_all(file, mods)
     end
 end
 
+-- define the fields we are interested in 
 filter_producer = {
     icon = true,
     type = true,
@@ -57,7 +58,12 @@ filter_producer = {
     animation = true,
     module_specification = true,
     energy_source = true,
-    crafting_categories = true
+    crafting_categories = true,
+    collision_box = true,
+    selection_box = true,
+    drawing_box = true,
+    tile_width = true,
+    tile_height = true
 }
 
 filter_recipe = {
@@ -165,7 +171,7 @@ end
 -- and all producers (smelters, assembling machines, refineries)
 --  and all items mentioned by them
 
--- the data that will be written to disk
+-- the data that will be written to disk, we will populate it
 local filtered = {
     ['transport-belt'] = data['transport-belt'],
     ['recipe'] = data['recipe'],

@@ -79,6 +79,10 @@ body{
     width: 24px;
     height: 24px;
 }
+.button.selected{
+    background-color: #ffd34f;
+    color: black;
+}
 #viewport{
     position: absolute;
     top: 0px;
@@ -94,7 +98,7 @@ body{
     position: absolute;
     background-image: url('img/grid.png');
 }
-#selection-rectangle{
+#selection-rectangle, #placement-rectangle{
     z-index: 100;
     position: absolute;
     display: none;
@@ -108,13 +112,13 @@ body{
     width: 250px;
     height: 200px;
 }
-#infobox h3{
-    margin: 0px;
-    font-size: 18px;
-}
 #infobox > div{
     margin-top: 5px;
     margin-bottom: 5px;
+}
+#infobox h3{
+    margin: 0px;
+    font-size: 18px;
 }
 #infobox label{
     font-weight: bold;
@@ -140,6 +144,8 @@ body{
     color: white;
     margin: auto;
     display: block;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 #infobox hr{
     width: 70%;

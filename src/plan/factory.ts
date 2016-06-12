@@ -92,7 +92,11 @@ namespace Plan{
             var canvas = <HTMLCanvasElement>this.html;
             var ctx = canvas.getContext("2d");
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            this.animation.prepare(canvas, this.orientation, this.shift);
+            
+            var tiles = Math.max(GameData.entityTileHeight(this.type), GameData.entityTileWidth(this.type));
+            var scale = 3/tiles;
+            
+            this.animation.prepare(canvas, scale, this.orientation, this.shift);
             this.animation.render(canvas, this.orientation);
             
             this.drawInCenter(ctx, this.viewport.resourceRecipeOverlayDecal, 0)

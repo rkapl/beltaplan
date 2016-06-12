@@ -26,7 +26,8 @@ namespace Plan{
         
         forAllTiles(each: (t: Tile) => void){
              for(var t in this.tiles){
-                 each(this.tiles[t]);
+                 if(this.tiles[t])
+                    each(this.tiles[t]);
              }
         }         
 
@@ -190,15 +191,15 @@ namespace Plan{
                 tile.position.y = y;
                 if(this.viewport)
                     tile.createHtml(this.viewport);
-                this.updateIncludingNeigbhbours(tile);
             }
+            this.updateIncludingNeigbhbours(x, y);
         }
-        private updateIncludingNeigbhbours(tile: Tile){
-            tile.updateState();
-            this.tryUpdateTile(this.getXY(tile.position.x+1, tile.position.y));
-            this.tryUpdateTile(this.getXY(tile.position.x, tile.position.y+1));
-            this.tryUpdateTile(this.getXY(tile.position.x-1, tile.position.y));
-            this.tryUpdateTile(this.getXY(tile.position.x, tile.position.y-1));
+        private updateIncludingNeigbhbours(x: number, y: number){
+            this.tryUpdateTile(this.getXY(x, y));
+            this.tryUpdateTile(this.getXY(x+1, y));
+            this.tryUpdateTile(this.getXY(x, y+1));
+            this.tryUpdateTile(this.getXY(x-1, y));
+            this.tryUpdateTile(this.getXY(x, y-1));
         }
         private tryUpdateTile(tile: Tile){
             if(tile)

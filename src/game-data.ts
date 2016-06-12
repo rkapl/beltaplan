@@ -1,4 +1,7 @@
 namespace GameData{
+    // helper types for the raw data
+    type Box = number[][];
+    
     // raw data imported from the json
     export interface Data{
         producers: { [id: string]: Producer};
@@ -7,6 +10,7 @@ namespace GameData{
     }
     export interface Item{
         icon: string
+        name: string;
     }
     export interface Producer{
         icon: string;
@@ -21,6 +25,11 @@ namespace GameData{
             type: string,
         }
         crafting_categories: string[]
+        collision_box: Box
+        selection_box: Box
+        drawing_box: Box
+        tile_width: number
+        tile_height: number
     }
     export interface AnimationBase{
         jsanimation: Ui.Animation;
@@ -56,18 +65,26 @@ namespace GameData{
         name: string,
         type: string
     }
-    export interface RecipeResult extends FactorioQuantity{
-        
-    }
-    export interface RecipeIngredient extends FactorioQuantity{
-        
-    }
+    export interface RecipeResult extends FactorioQuantity{}
+    export interface RecipeIngredient extends FactorioQuantity{}
 
     export function iconForRecipe(r: Recipe, data:Data): string{
         if(r.icon)
             return r.icon;
         else
             return data.item[r.results[0].name].icon;
+    }
+    export function entityTileWidth(producer: Producer){
+        if(producer.tile_width)
+            return producer.tile_width;
+        else
+            return Math.ceil(producer.collision_box[1][0] - producer.collision_box[0][0]);
+    }
+    export function entityTileHeight(producer: Producer){
+        if(producer.tile_height)
+            return producer.tile_height;
+        else
+            return Math.ceil(producer.collision_box[1][1] - producer.collision_box[0][1]);
     }
 }
 

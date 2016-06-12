@@ -14,6 +14,7 @@
                 Loading ...
             </div>
         </div>
+        
         <ul class="toolbox" id="toolbox">
             <li class="button">
                 Clear Plan
@@ -22,29 +23,31 @@
                 Recalculate
             </li>
             <br/>
-            <li class="button">
+            <li class="button" id="button-place-bus">
                 Bus
             </li>
-            <li class="split button" id="new-producer-button">
+            <li class="split button" id="button-place-producer">
                 <span>
                     Factory
                 </span>
-                <span>
-                    <img id="selected-producer-image" src="img/grid.png" />                   
+                <span id="new-producer-type-button">
+                    <img id="selected-producer-img" src="img/grid.png"/>                   
                 </span>
             </li>
-            <li class="button">
+            <li class="button" id="button-place-blocker">
                 Item Blocker
             </li>
-            <li class="button">
+            <li class="button" id="button-place-source">
                 Item Source
             </li>
-            <li class="button">
+            <li class="button" id="button-place-sink">
                 Item Sink
             </li>
         </ul>
+        
         <ul class="toolbox" id="infobox">
         </ul>
+        
         <div id="dialog">
             <div id="dialog-window">
                 <div id="dialog-contents">
@@ -54,6 +57,7 @@
         <div id="viewport">
             <div class="viewport-background"></div>
             <img src="img/selection.svg" id="selection-rectangle"/>
+            <img src="img/placement-placeholder.svg" id="placement-rectangle"/>
         </div>
     </body>
 </html>

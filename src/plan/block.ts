@@ -8,5 +8,9 @@ namespace Plan{
         underlay(ctx: CanvasRenderingContext2D){
             ctx.drawImage(this.viewport.resourceBlock, 0, 0);
         }
+        showInfo(box: HTMLElement){
+            super.showInfo(box);
+            this.showInfoStandardButtons();
+        }
     }
 }

@@ -221,7 +221,10 @@ namespace Plan{
         private imageForItem(item: GameData.Item){
             var img = new Image();
             img.src = this.plan.dataPrefix + item.icon;
-            img.onload = () => this.updateHtml();
+            img.onload = () => {
+                if(this.viewport) 
+                    this.updateHtml();
+            }
             (<FactorioItemMixin><any>img).factorioItem = item;
             return img;
         }
@@ -248,6 +251,10 @@ namespace Plan{
             ctx.moveTo(this.border, this.border);
             ctx.lineTo(Ui.Sizes.TILE_SIZE - this.border, this.border);
             ctx.stroke()
+        }
+        showInfo(box: HTMLElement){
+            super.showInfo(box);
+            this.showInfoStandardButtons();
         }
     }
     

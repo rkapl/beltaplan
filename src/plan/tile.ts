@@ -37,7 +37,7 @@ namespace Plan{
         
         constructor(public plan: Plan){
             this.position = undefined;          
-            this.orientation = Util.Orientation.WEST;
+            this.orientation = Util.Orientation.NORTH;
             this.shift = new Util.Vector(0,0);
         }
         
