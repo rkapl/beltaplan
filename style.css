@@ -25,12 +25,13 @@ body{
     align-self: center;
 }
 #toolbox{
-    right: 40px;
+    right: 20px;
 }
 .toolbox{
     display: block;
     position: absolute;
     list-style-type: none;
+    margin: 0px;
     
     background-color: white;
     padding: 10px;
@@ -39,10 +40,11 @@ body{
 .toolbox li{
     display: block;
     width: 200px;
-    color: white;
+    box-sizing: border-box;
 }
 .button{
     background-color: green;
+    color: white;
     font-size: 12pt;
     padding: 6px;
     text-align: center;
@@ -79,10 +81,48 @@ body{
     width: 24px;
     height: 24px;
 }
-.button.selected{
+.button.small{
+    width: 20px;
+    text-align: center;
+}
+.toolbox li.two-button{
+    display: flex;
+    flex-direction: row;
+}
+.toolbox li.two-button .button{
+    flex-grow: 0.5;
+    width: 0px;
+}
+.toolbox li.two-button .button:last-child{
+    margin-left: 3px;
+}
+.toolbox li.two-button .button:first-child{
+    margin-right: 3px;
+}
+.toolbox  .button.selected{
     background-color: #ffd34f;
     color: black;
 }
+.toolbox li.plan-name-box{
+    display: flex;
+}
+#plan-name{
+    margin-right: 5px;
+    padding-right :5px;
+    padding-left :5px;
+    flex-grow: 1;
+    border: 1px solid black;
+}
+#button-open{
+    padding: 4px;
+    cursor: pointer;
+    background-color: green;
+}
+#button-open img{
+    vertical-align: middle;
+}
+
+
 #viewport{
     position: absolute;
     top: 0px;
@@ -107,7 +147,7 @@ body{
 
 
 #infobox{
-    right: 40px;
+    right: 20px;
     bottom: 20px;
     width: 250px;
 }
@@ -194,6 +234,22 @@ body{
     width: 600px;
     min-height: 200px;
     padding: 10px;
+    position: relative;
+}
+#dialog-close-button{
+    position: absolute;
+    left: 100%;
+    top: -1px;
+    background-color: white;
+    border: 1px solid black;
+    padding: 3px;
+}
+.dialog-buttons{
+    display: block;
+}
+.dialog-buttons .button{
+    float:right;
+    margin-left: 6px;
 }
 #dialog-contents.select-dialog input{
     width: 90%;
@@ -201,9 +257,23 @@ body{
     margin: auto;
     margin-bottom: 0.5em;
 }
+
 #dialog-contents.select-dialog img{
     padding: 2px;
 }
 #dialog-contents.select-dialog img:hover{
     background-color: green;
+}
+#dialog-contents h2{
+    font-size: 14pt;
+    border-bottom: 1px solid gray;
+    padding-left: 0.5em;
+    margin-top: 5px;
+}
+#dialog-contents.open-dialog textarea{
+    border: 1px solid black;
+    height: 100px;
+    box-sizing: border-box;
+    width: 100%;
+    display: block;
 }

@@ -23,8 +23,6 @@ namespace Ui{
                 if(ev.keyCode == 13 && this.filtered.length == 1){
                     // fast-accept on enter
                     this.filtered[0].click();
-                }else if(ev.keyCode == 27){
-                    this.closeCancel();
                 }else{
                     this.filter()
                 }

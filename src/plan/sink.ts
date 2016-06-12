@@ -11,8 +11,12 @@ namespace Plan{
         blocks: Set<GameData.Item> =  new Set();
         needsItem: GameData.Item;
         
-        constructor(plan: Plan){
+        constructor(plan: GamePlan){
             super(plan);
+        }
+        serialize(json){
+            super.serialize(json);
+            json.type = 'Sink';
         }
         setItem(item: GameData.Item){
             super.setItem(item);

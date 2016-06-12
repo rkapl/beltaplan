@@ -10,29 +10,36 @@ namespace Plan{
     }
     
     class LoopException{
-        
     }
+    
+    var knownTiles = ['Block', 'Bus', 'Factory', 'Sink', 'Source'];
          
-    export class Plan{
+    export class GamePlan{
         public busStarts: Bus[] = [];
         public busEnds: Bus[] = [];
         public viewport: Ui.Viewport;
         
         private tiles: {[index : string] : Tile} = {};        
         
-        constructor(
-            public dataPrefix: string,
-            public data: GameData.Data)
-        {
+        constructor(public data: GameData.Data){
         }
-        
         forAllTiles(each: (t: Tile) => void){
              for(var t in this.tiles){
                  if(this.tiles[t])
                     each(this.tiles[t]);
              }
-        }         
-
+        }
+        public savePlan(json){
+            json.gameVersion = this.data.version;
+            
+            var tiles = [];
+            this.forAllTiles((t) => {
+               var tileJson = {};
+               t.serialize(tileJson);
+               tiles.push(tileJson); 
+            });
+            json.tiles = tiles;
+        }
         public forAllBusses(cb: (bus: Bus) => void){
             for(var tile in this.tiles){
                 if(this.tiles[tile] instanceof Bus)
@@ -217,5 +224,22 @@ namespace Plan{
             if(tile)
                 tile.updateState();
         }
+    }
+    export function loadPlan(json, cb: (plan: GamePlan) => void){
+        App.loadData(json.gameVersion, (data: GameData.Data) => {
+           var plan = new GamePlan(data);
+           var tiles = <any[]> json.tiles;
+           for(var i = 0; i<tiles.length; i++){
+               var type = tiles[i].type;
+               if(knownTiles.indexOf(type) == -1){
+                   App.error("Unknown tile type");
+               }
+               var tile = <Tile> new Plan[type](plan);
+               tile.deserialize(tiles[i]);
+               plan.setXY(tiles[i].x, tiles[i].y, tile);
+           }
+           plan.updateBus(); 
+           cb(plan);
+        });
     }
 }

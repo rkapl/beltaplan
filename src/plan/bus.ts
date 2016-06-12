@@ -30,13 +30,17 @@ namespace Plan{
         solved: boolean;
         visited: boolean;
         
-        constructor(public plan: Plan){
+        constructor(public plan: GamePlan){
             super(plan);
         }
         destroy(){
             super.destroy();
             this.removeBusStart();
             this.removeBusEnd();
+        }
+        serialize(json){
+            super.serialize(json);
+            json.type = 'Bus';
         }
         removeBusStart(){
             var idx = this.plan.busStarts.indexOf(this);
@@ -221,7 +225,7 @@ namespace Plan{
         }
         private imageForItem(item: GameData.Item){
             var img = new Image();
-            img.src = this.plan.dataPrefix + item.icon;
+            img.src = this.plan.data.prefix + item.icon;
             img.onload = () => {
                 if(this.viewport) 
                     this.updateHtml();
@@ -263,7 +267,7 @@ namespace Plan{
                 
                 var iconTd = document.createElement('td');
                 var icon = document.createElement('img');;
-                icon.src = this.plan.dataPrefix + item.icon;
+                icon.src = this.plan.data.prefix + item.icon;
                 iconTd.appendChild(icon);                
                 tr.appendChild(iconTd);
                 

@@ -8,8 +8,12 @@ namespace Plan{
         blocks: Set<GameData.Item> =  new Set();
         blocksItem: GameData.Item;
         
-        constructor(plan: Plan){
+        constructor(plan: GamePlan){
             super(plan);
+        }
+        serialize(json){
+            super.serialize(json);
+            json.type = 'Block';
         }
         underlay(ctx: CanvasRenderingContext2D){
             ctx.drawImage(this.viewport.resourceBlock, 0, 0);

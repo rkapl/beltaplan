@@ -10,12 +10,29 @@ namespace Plan{
         missing: Set<GameData.Item> = new Set();
         connectedTo: Bus;
         recipeIcon: HTMLImageElement;
-        constructor(plan: Plan, public type: GameData.Producer){
+        type: GameData.Producer;
+        constructor(plan: GamePlan, type: GameData.Producer){
             super(plan);
-            this.setRecipe(plan.data.recipe['iron-gear-wheel'])
-            this.animation = Ui.animationFromData(this.type.animation, plan, () => {
+            if(type)
+                this.setType(type);
+        }
+        setType(type: GameData.Producer){
+            this.type = type;
+            this.setRecipe(this.plan.data.recipe['iron-gear-wheel'])
+            this.animation = Ui.animationFromData(this.type.animation, this.plan, () => {
                 this.updateState();
             });
+        }
+        serialize(json){
+            super.serialize(json);
+            json.type = 'Factory';
+            json.recipe = this.recipe.name;
+            json.producer = this.type.name;
+        }
+        deserialize(json){
+            super.deserialize(json);
+            this.setType(this.plan.data.producers[json.producer]);
+            this.setRecipe(this.plan.data.recipe[json.recipe])
         }
         showInfo(box: HTMLElement){
             super.showInfo(box);
@@ -33,7 +50,7 @@ namespace Plan{
                 var ingredient = document.createElement('span');
                 var img = new Image();
                 var item = this.plan.data.item[needs.name];
-                img.src= this.plan.dataPrefix + item.icon;
+                img.src= this.plan.data.prefix + item.icon;
                 ingredient.appendChild(document.createTextNode(needs.amount.toString()));
                 ingredient.appendChild(img);
                 if(this.missing.has(item))
@@ -47,7 +64,7 @@ namespace Plan{
                 
                 var result = document.createElement('span');
                 var img = new Image();
-                img.src = this.plan.dataPrefix + this.plan.data.item[provides.name].icon;
+                img.src = this.plan.data.prefix + this.plan.data.item[provides.name].icon;
                 result.appendChild(document.createTextNode(provides.amount.toString()));
                 result.appendChild(img);
                 recipe.appendChild(result);
@@ -75,7 +92,7 @@ namespace Plan{
             }
             this.recipeIcon = new Image();
             this.recipeIcon.onload = () => this.updateState();
-            this.recipeIcon.src = this.plan.dataPrefix + GameData.iconForRecipe(recipe, this.plan.data);
+            this.recipeIcon.src = this.plan.data.prefix + GameData.iconForRecipe(recipe, this.plan.data);
             this.needs = new Set();
             for(var ingredient of recipe.ingredients){
                 this.needs.add(this.plan.data.item[ingredient.name]);

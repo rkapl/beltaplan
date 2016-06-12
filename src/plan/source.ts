@@ -11,7 +11,7 @@ namespace Plan{
         blocks: Set<GameData.Item> = new Set();;
         providesItem: GameData.Item;
         
-        constructor(plan: Plan){
+        constructor(plan: GamePlan){
             super(plan);
         }
         setItem(item: GameData.Item){
@@ -22,6 +22,10 @@ namespace Plan{
         }
         isBusParticipant():boolean{
             return true;
+        }
+        serialize(json){
+            super.serialize(json);
+            json.type = 'Source';
         }
         overlay(ctx: CanvasRenderingContext2D){
             ctx.font = "14px sans-serif";

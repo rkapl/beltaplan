@@ -20,13 +20,11 @@ namespace App{
     var placementDefaultRecipes: GameData.Recipe[];
     var placementDefaultItem: GameData.Item;
        
-    export function initPlacement(){
-        placementRectangle = <HTMLImageElement> document.getElementById('placement-rectangle');
-        
-        defaultProducer = selectedProducer = data.producers["assembling-machine-3"];
-        placementDefaultRecipes = [data.recipe['iron-gear-wheel']];
-        placementDefaultItem = data.item['iron-gear-wheel'];
-        
+    export function initPlacementForPlan(){
+        defaultProducer = selectedProducer = plan.data.producers["assembling-machine-3"];
+        placementDefaultRecipes = [plan.data.recipe['iron-gear-wheel']];
+        placementDefaultItem = plan.data.item['iron-gear-wheel'];
+
         for(var i = 0; i<placementDefaultRecipes.length; i++){
             if(placementDefaultRecipes[i] == null)
                 error("Factorio data incomplete");
@@ -37,6 +35,9 @@ namespace App{
             error("Factorio data incomplete");
             
         selectProducer(defaultProducer);
+    }          
+    export function initPlacement(){
+        placementRectangle = <HTMLImageElement> document.getElementById('placement-rectangle');
         
         // setup placement buttons and register their events
         placementButtons = [
@@ -83,7 +84,7 @@ namespace App{
     export function selectProducer(producer: GameData.Producer){
         selectedProducer = producer;
         var img = <HTMLImageElement> document.getElementById("selected-producer-img");
-        img.src = App.dataPrefix + selectedProducer.icon;
+        img.src = App.plan.data.prefix + selectedProducer.icon;
     }
     function enterPlacementMode(){
         viewport.html.addEventListener('mousemove', hover);

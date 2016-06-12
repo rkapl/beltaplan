@@ -13,7 +13,7 @@ namespace Ui{
         parts: AnimationPart[] = new Array(4);
         onload: OnloadCallback[] = [];
         loaded: boolean = false;
-        constructor(data: GameData.AnimationSet, public plan: Plan.Plan){
+        constructor(data: GameData.AnimationSet, public plan: Plan.GamePlan){
             this.parts[Util.Orientation.WEST] = new AnimationPart(data.west, plan);
             this.parts[Util.Orientation.EAST] = new AnimationPart(data.east, plan);
             this.parts[Util.Orientation.NORTH] = new AnimationPart(data.north, plan);
@@ -47,7 +47,7 @@ namespace Ui{
         image: HTMLImageElement;
         onload: OnloadCallback[] = [];
         loaded: boolean = false;
-        constructor(public data: GameData.AnimationPart, public plan: Plan.Plan){
+        constructor(public data: GameData.AnimationPart, public plan: Plan.GamePlan){
             this.image = new Image();
             this.image.onload = () => {
                 this.loaded = true;
@@ -55,7 +55,7 @@ namespace Ui{
                     onload(this);
                 }
             };
-            this.image.src = plan.dataPrefix + data.filename;
+            this.image.src = plan.data.prefix + data.filename;
         }
         prepare(canvas: HTMLCanvasElement, scale: number, orientation: Util.Orientation, shiftOut: Util.Vector){
             // a Factorio animation is centered in the drawn area and then the shift is applied
@@ -106,7 +106,7 @@ namespace Ui{
     
     export function animationFromData(
         data: GameData.AnimationSet | GameData.AnimationPart,
-        plan: Plan.Plan,
+        plan: Plan.GamePlan,
         cb: OnloadCallback): Animation
     {
             if(!data.jsanimation){

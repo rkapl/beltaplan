@@ -19,7 +19,7 @@ namespace Ui{
         private pressedKeys: {[index: number] : boolean} = {};
         private isScrolling: boolean;
         private lastAnimationTime: number;
-        private plan: Plan.Plan;
+        private plan: Plan.GamePlan;
         
         constructor(html: HTMLElement){
             this.html = html;
@@ -51,7 +51,7 @@ namespace Ui{
             this.resizeBackground();
             this.updateScroll();
         }
-        showPlan(plan: Plan.Plan){
+        showPlan(plan: Plan.GamePlan){
             if(plan == this.plan)
                 return;
             if(this.plan){

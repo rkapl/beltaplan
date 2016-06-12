@@ -7,6 +7,12 @@ namespace GameData{
         producers: { [id: string]: Producer};
         item: { [id: string]: Item};
         recipe: { [id: string]: Recipe};
+        
+        // prefix and version is filled by the loader
+        // all data in this dataset can be downloaded by prepending this url
+        prefix: string;
+        // game version from which the data come
+        version: string;
     }
     export interface Item{
         icon: string

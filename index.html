@@ -16,16 +16,24 @@
         </div>
         
         <ul class="toolbox" id="toolbox">
-            <li class="button">
-                Clear Plan
+            <li class="plan-name-box">
+                <input type="text" id="plan-name" />
+                <div class="right" id="button-open">
+                    <img src="img/icon-open.svg" />
+                </div>
             </li>
-            <li class="button" id="button-recalculate">
-                Recalculate
+            
+            <li class="two-button">
+                <div class="button" id="button-recalculate">
+                    Check
+                </div>
+                <div class="button">
+                    Clear
+                </div>
             </li>
+            
             <br/>
-            <li class="button" id="button-place-bus">
-                Bus
-            </li>
+            
             <li class="split button" id="button-place-producer">
                 <span>
                     Factory
@@ -34,22 +42,30 @@
                     <img id="selected-producer-img" src="img/grid.png"/>                   
                 </span>
             </li>
-            <li class="button" id="button-place-blocker">
-                Item Filter
+            <li class="two-button">
+                <div class="button" id="button-place-bus">
+                    Bus
+                </div>
+                <div class="button" id="button-place-blocker">
+                    Filter
+                </div>
             </li>
-            <li class="button" id="button-place-source">
-                Item Source
-            </li>
-            <li class="button" id="button-place-sink">
-                Item Sink
+            <li class="two-button">
+                <div class="button" id="button-place-source">
+                    Source
+                </div>
+                <div class="button" id="button-place-sink">
+                    Sink
+                </div>
             </li>
         </ul>
         
         <ul class="toolbox" id="infobox">
         </ul>
         
-        <div id="dialog">
+        <div id="dialog" role="dialog">
             <div id="dialog-window">
+                <img src="img/icon-close.svg" id="dialog-close-button"/>
                 <div id="dialog-contents">
                 </div>
             </div>

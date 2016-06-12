@@ -19,6 +19,9 @@ namespace Plan{
         createHtml(vp: Ui.Viewport);
         updateHtml()
         removeHtml();
+        
+        serialize(destination);
+        deserialize(from);
     }
     
     export class TileBase implements Ui.InfoBoxContents{
@@ -35,10 +38,19 @@ namespace Plan{
         infoBox: HTMLElement = null;
         elementType: string;
         
-        constructor(public plan: Plan){
+        constructor(public plan: GamePlan){
             this.position = undefined;          
             this.orientation = Util.Orientation.NORTH;
             this.shift = new Util.Vector(0,0);
+        }
+        
+        serialize(json){
+            json.x = this.position.x;
+            json.y = this.position.y;
+            json.orientation = this.orientation;
+        }
+        deserialize(json){
+            this.orientation = json.orientation;
         }
         
         showInfo(box: HTMLElement){
@@ -155,7 +167,7 @@ namespace Plan{
     export class ItemTile extends TileBase{   
         item: GameData.Item;
         itemIcon: HTMLImageElement;
-        constructor(plan: Plan){
+        constructor(plan: GamePlan){
             super(plan);
         }
         setItem(item: GameData.Item){
@@ -165,7 +177,15 @@ namespace Plan{
                 if(this.html)
                     this.updateHtml();
             };
-            this.itemIcon.src = this.plan.dataPrefix + this.item.icon;
+            this.itemIcon.src = this.plan.data.prefix + this.item.icon;
+        }
+        serialize(json){
+            super.serialize(json);
+            json.item = this.item.name;
+        }
+        deserialize(json){
+            super.deserialize(json);
+            this.setItem(this.plan.data.item[json.item]);
         }
         updateHtml(){
             super.updateHtml();
