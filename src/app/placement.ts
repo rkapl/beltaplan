@@ -8,8 +8,12 @@ namespace App{
     }
     class PlaceButton{
         public html: HTMLElement;
-        public constructor(public buttonId: string, public creator: TileCreator){
+        public htmlClickHandler: HTMLElement;
+        public constructor(buttonId: string, public creator: TileCreator, clickHandler?: string){
             this.html = document.getElementById(buttonId);
+            if(!clickHandler)
+                clickHandler = buttonId;
+            this.htmlClickHandler = document.getElementById(clickHandler);
         }
     }
     
@@ -47,7 +51,7 @@ namespace App{
                 // TODO: chose based on actual support
                 f.setRecipe(placementDefaultRecipes[0]);
                 return f;
-            }),
+            }, 'button-place-producer-click-area'),
             new PlaceButton('button-place-blocker', () => {
                 var b = new Plan.Block(plan);
                 b.setItem(placementDefaultItem);
@@ -66,7 +70,7 @@ namespace App{
         ];
         for(var i = 0; i< placementButtons.length; i++){
             ((b: PlaceButton) => {
-                b.html.onclick = () => {
+                b.htmlClickHandler.onclick = () => {
                     if(selectedPlacementButton)
                             selectedPlacementButton.html.classList.remove('selected');
                             

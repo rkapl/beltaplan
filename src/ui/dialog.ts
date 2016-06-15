@@ -7,19 +7,30 @@ namespace Ui{
     export class Dialog{
         // TODO: fix focus leaving this homemade dialog and other event weirdness
         html: HTMLElement;
+        htmlDialog: HTMLElement;
         constructor(public cb: DialogCallback){
             this.html = document.getElementById('dialog-contents');
             this.html.className = '';
         }
         show(){
-            var dlg = document.getElementById('dialog'); 
+            this.htmlDialog = document.getElementById('dialog'); 
             if(!dialog_initialized){
                 dialog_initialized = true;
-                for(var x of ['keypress', 'keydown', 'keyup']){
-                    dlg.addEventListener(x, (ev) => ev.stopPropagation());
-                }
+                this.htmlDialog.addEventListener('keypress', (ev) => {
+                   
+                    ev.stopPropagation();
+                });
+                this.htmlDialog.addEventListener('keydown', (ev) => {
+                    if(ev.keyCode == 9){ // tab
+                        this.keepFocusInDialog(ev);
+                    }
+                    ev.stopPropagation();
+                });
+                this.htmlDialog.addEventListener('keyup', (ev) => {
+                    ev.stopPropagation();
+                });
                 window.addEventListener('keydown', (ev) => {
-                    if(ev.keyCode == 27){
+                     if(ev.keyCode == 27){
                         this.hide();
                     }
                 });
@@ -27,7 +38,26 @@ namespace Ui{
                    hideCurrentDialog(); 
                 });
             }
-            dlg.style.display = 'flex';
+            this.htmlDialog.style.display = 'flex';
+            
+            document.getElementById('dialog-close-button').focus();
+        }
+        keepFocusInDialog(ev: KeyboardEvent){
+            // focusable items (approximation), for constraining the tab order,
+            // algorithm from https://www.w3.org/TR/wai-aria-practices/#trap_focus
+            var focusables = this.htmlDialog.querySelectorAll('input, textarea, button, a[href]')
+            var first = <HTMLElement> focusables[0];
+            var last = <HTMLElement> focusables[focusables.length - 1];
+            
+            if(first == last){
+                ev.preventDefault();
+            }else if(first == document.activeElement && ev.shiftKey){
+                last.focus();
+                ev.preventDefault();
+            }else if(last == document.activeElement && !ev.shiftKey){
+                first.focus();
+                ev.preventDefault();
+            }
         }
         closeOk(){
             this.hide();

@@ -37,6 +37,9 @@ namespace Ui{
             
             this.background = <HTMLElement>this.html.getElementsByClassName('viewport-background')[0];
             window.addEventListener('keydown', (e) => {
+                if(this.ignoreKeypressInside(<HTMLElement>e.target))
+                    return;
+               
                this.pressedKeys[e.keyCode] = true;
                if(!this.isScrolling && !this.currentScrollDirection().isZero()){
                     this.isScrolling = true;
@@ -50,6 +53,9 @@ namespace Ui{
             window.addEventListener('resize', (e) => this.resizeBackground());
             this.resizeBackground();
             this.updateScroll();
+        }
+        private ignoreKeypressInside(tag: HTMLElement){
+            return tag.tagName.toLowerCase() == 'input' || tag.tagName.toLowerCase() == 'textarea';
         }
         showPlan(plan: Plan.GamePlan){
             if(plan == this.plan)

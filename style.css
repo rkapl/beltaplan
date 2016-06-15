@@ -26,6 +26,7 @@ body{
 }
 #toolbox{
     right: 20px;
+    width: 200px;
 }
 .toolbox{
     display: block;
@@ -39,67 +40,73 @@ body{
 }
 .toolbox li{
     display: block;
-    width: 200px;
-    box-sizing: border-box;
 }
-.button{
+button, .toolbox li.split-button{
+    display: block;
+    box-sizing: content-box;
+    border: none;
     background-color: green;
     color: white;
     font-size: 12pt;
     padding: 6px;
     text-align: center;
     cursor: pointer;
+    margin: 0px;
     margin-top: 3px;
     margin-bottom: 3px;
 }
-.button.split{
+button.fill{
+    width: 100%;
+    box-sizing: border-box;
+}
+.toolbox li.split-button{
     display:flex;
     flex-direction: row;
-    padding: 1px;
-    padding-left: 6px;
-    padding-right: 6px;
     align-content: stretch;
+    padding: 0px;
 }
-.button.split span:first-child{
-    padding: 5px;
+.toolbox li.split-button button{
+    background-color: transparent;
+    margin: 0px;
+}
+.toolbox li.split-button button:first-child{
     flex-grow: 1;
     width: 20px;
 }
-.button.split span:last-child{
+.toolbox li.split-button button:last-child{
     display: flex;
+    padding: 1px;
     flex-direction: row;
     border-left: 1px solid white;
     padding-left: 10px;
     align-items: center;
 }
-.button.split span:last-child:after{
+.toolbox li.split-button button:last-child:after{
     content: "\25BC";
     font-size: 10pt;
     padding-left: 5px;
 }
-.button.split img{
+.split-button img{
     width: 24px;
     height: 24px;
 }
-.button.small{
-    width: 20px;
-    text-align: center;
-}
+
+
 .toolbox li.two-button{
     display: flex;
     flex-direction: row;
 }
-.toolbox li.two-button .button{
+.toolbox li.two-button button{
     flex-grow: 0.5;
     width: 0px;
 }
-.toolbox li.two-button .button:last-child{
+.toolbox li.two-button button:last-child{
     margin-left: 3px;
 }
-.toolbox li.two-button .button:first-child{
+.toolbox li.two-button button:first-child{
     margin-right: 3px;
 }
-.toolbox  .button.selected{
+.toolbox  button.selected, .toolbox li.split-button.selected{
     background-color: #ffd34f;
     color: black;
 }
@@ -115,6 +122,7 @@ body{
 }
 #button-open{
     padding: 4px;
+    margin: 0px;
     cursor: pointer;
     background-color: green;
 }
@@ -174,13 +182,7 @@ body{
     float: right;
 }
 #infobox button{
-    background-color: green;
-    border: none;
-    cursor: pointer;
-    padding: 5px;
-    color: white;
     margin: auto;
-    display: block;
     margin-top: 5px;
     margin-bottom: 5px;
 }
@@ -238,16 +240,20 @@ body{
 }
 #dialog-close-button{
     position: absolute;
+    margin:0px;
     left: 100%;
     top: -1px;
     background-color: white;
     border: 1px solid black;
     padding: 3px;
 }
+#dialog-close-button img{
+    display: block;
+}
 .dialog-buttons{
     display: block;
 }
-.dialog-buttons .button{
+.dialog-buttons button{
     float:right;
     margin-left: 6px;
 }

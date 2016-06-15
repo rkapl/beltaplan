@@ -31,9 +31,8 @@ namespace App{
             var serializeBar = document.createElement('div');
             serializeBar.classList.add('dialog-buttons');
             
-            var buttonExport = document.createElement('div');
+            var buttonExport = document.createElement('button');
             buttonExport.innerText = "Export";
-            buttonExport.classList.add('button');
             buttonExport.addEventListener('click', () => {
                var json = {
                    'saveData': 'beltaplan',
@@ -44,9 +43,8 @@ namespace App{
             });
             serializeBar.appendChild(buttonExport);
             
-            var buttonImport = document.createElement('div');
+            var buttonImport = document.createElement('button');
             buttonImport.innerText = "Import";
-            buttonImport.classList.add('button');
             buttonImport.addEventListener('click', () => {
                 try{
                     var json = JSON.parse(textArea.value);

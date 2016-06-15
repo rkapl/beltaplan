@@ -18,45 +18,40 @@
         <ul class="toolbox" id="toolbox">
             <li class="plan-name-box">
                 <input type="text" id="plan-name" />
-                <div class="right" id="button-open">
+                <button class="right" id="button-open">
                     <img src="img/icon-open.svg" />
-                </div>
+                </button>
             </li>
             
-            <li class="two-button">
-                <div class="button" id="button-recalculate">
+            <li>
+                <button id="button-recalculate" class="fill">
                     Check
-                </div>
-                <div class="button">
-                    Clear
-                </div>
+                </button>
             </li>
-            
             <br/>
-            
-            <li class="split button" id="button-place-producer">
-                <span>
+            <li class="split-button" id="button-place-producer">
+                <button id="button-place-producer-click-area">
                     Factory
-                </span>
-                <span id="new-producer-type-button">
+                </button>
+                <button id="new-producer-type-button">
                     <img id="selected-producer-img" src="img/grid.png"/>                   
-                </span>
+                </button>
             </li>
             <li class="two-button">
-                <div class="button" id="button-place-bus">
+                <button id="button-place-bus">
                     Bus
                 </div>
-                <div class="button" id="button-place-blocker">
+                <button id="button-place-blocker">
                     Filter
-                </div>
+                </button>
             </li>
             <li class="two-button">
-                <div class="button" id="button-place-source">
+                <button id="button-place-source">
                     Source
-                </div>
-                <div class="button" id="button-place-sink">
+                </button>
+                <button id="button-place-sink">
                     Sink
-                </div>
+                </button>
             </li>
         </ul>
         
@@ -65,7 +60,9 @@
         
         <div id="dialog" role="dialog">
             <div id="dialog-window">
-                <img src="img/icon-close.svg" id="dialog-close-button"/>
+                <button id="dialog-close-button">
+                    <img src="img/icon-close.svg"/>
+                </button>
                 <div id="dialog-contents">
                 </div>
             </div>

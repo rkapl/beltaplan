@@ -39,7 +39,9 @@ namespace App{
                 selectProducer(dlg.selected);
             });
             dlg.show();
-        });        window.addEventListener('keypress', (ev) => {
+        });       
+        
+        window.addEventListener('keypress', (ev) => {
             if(ev.charCode == 114 && currentMode == Mode.NORMAL){
                 if(selectedTile){
                     selectedTile.rotate();
