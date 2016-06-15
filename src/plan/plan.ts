@@ -14,10 +14,14 @@ namespace Plan{
     
     var knownTiles = ['Block', 'Bus', 'Factory', 'Sink', 'Source'];
          
+    export interface GamePlanListener{
+        changed(x: number, y: number);
+    }
     export class GamePlan{
         public busStarts: Bus[] = [];
         public busEnds: Bus[] = [];
         public viewport: Ui.Viewport;
+        public listeners: Set<GamePlanListener> = new Set();
         
         private tiles: {[index : string] : Tile} = {};        
         
@@ -212,6 +216,7 @@ namespace Plan{
                     tile.createHtml(this.viewport);
             }
             this.updateIncludingNeigbhbours(x, y);
+            this.listeners.forEach((l) => l.changed(x, y));
         }
         private updateIncludingNeigbhbours(x: number, y: number){
             this.tryUpdateTile(this.getXY(x, y));

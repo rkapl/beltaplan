@@ -112,6 +112,7 @@ namespace App{
     function setPlan(plan: Plan.GamePlan){
         // set the plan and let interested components know
         App.plan = plan;
+        plan.listeners.add(new TileSelectionListener());
         initPlacementForPlan();
         viewport.showPlan(plan);
     }

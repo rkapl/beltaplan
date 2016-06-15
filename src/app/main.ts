@@ -10,10 +10,17 @@ namespace App{
     export function init(){
         initPlacement();
         viewport = new Ui.Viewport(document.getElementById('viewport'));
-        initLocalStorage(()=>{
+        initLocalStorage(() =>{
             handlers();
             hideSplash();
         });
+    }
+    export class TileSelectionListener implements Plan.GamePlanListener{
+        changed(x: number, y:number){
+            if(selectedTile.position.x == x && selectedTile.position.y == y){
+                selectTile(null);
+            }
+        }
     }
     export function error(what: string){
         alert(what);
