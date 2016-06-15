@@ -60,9 +60,9 @@ namespace Ui{
             window.addEventListener('resize', (e) => this.resizeBackground());
             window.addEventListener('wheel', (e) => {
                 if(e.deltaMode == e.DOM_DELTA_LINE || e.deltaMode == e.DOM_DELTA_PAGE){
-                    this.applyZoom(1 + e.deltaY * 10 * this.zoomSpeed);
+                    this.applyZoom(1 - e.deltaY * 10 * this.zoomSpeed);
                 }else{
-                    this.applyZoom(1 + e.deltaY * this.zoomSpeed);
+                    this.applyZoom(1 - e.deltaY * this.zoomSpeed);
                 }
             });
             this.resizeBackground();
