@@ -2,19 +2,27 @@
 
 namespace Plan{
     export class Factory extends TileBase implements BusParticipant{
-        animation: Ui.Animation;
-        recipe: GameData.Recipe;
-        needs: Set<GameData.Item>;
-        provides: Set<GameData.Item>;
-        blocks: Set<GameData.Item> =  new Set();
-        missing: Set<GameData.Item> = new Set();
-        connectedTo: Bus;
-        recipeIcon: HTMLImageElement;
-        type: GameData.Producer;
+        private animation: Ui.Animation;
+        private recipe: GameData.Recipe;
+        participant: BusParticipantData = new BusParticipantData();
+        private recipeIcon: HTMLImageElement;
+        private type: GameData.Producer;
+        
         constructor(plan: GamePlan, type: GameData.Producer){
             super(plan);
             if(type)
                 this.setType(type);
+        }
+        isMissing(item: GameData.Item): boolean{
+            return !this.participant.toConnections.has(item);
+        }
+        isAnyMissing(): boolean{
+            var missing = false;
+            this.participant.needs.forEach((item) => {
+                if(this.isMissing(item))
+                    missing = true;
+            });
+            return missing;
         }
         setType(type: GameData.Producer){
             this.type = type;
@@ -53,7 +61,7 @@ namespace Plan{
                 img.src= this.plan.data.prefix + item.icon;
                 ingredient.appendChild(document.createTextNode(needs.amount.toString()));
                 ingredient.appendChild(img);
-                if(this.missing.has(item))
+                if(this.isMissing(item))
                     ingredient.classList.add("missing");
                 recipe.appendChild(ingredient);
             }
@@ -75,7 +83,7 @@ namespace Plan{
             recipeButton.onclick =  () => {
                 var d = new Ui.SelectRecipe(this.plan, ()=>{
                     this.setRecipe(d.selected);
-                    this.updateState();
+                    this.updateIncludingNeighbours();
                 });
                 d.show();
             };
@@ -86,16 +94,16 @@ namespace Plan{
         }
         setRecipe(recipe: GameData.Recipe){
             this.recipe = recipe;
-            this.provides = new Set(); 
+            this.participant.provides = new Set(); 
             for(var result of this.recipe.results){
-                this.provides.add(this.plan.data.item[result.name]);
+                this.participant.provides.add(this.plan.data.item[result.name]);
             }
             this.recipeIcon = new Image();
             this.recipeIcon.onload = () => this.updateState();
             this.recipeIcon.src = this.plan.data.prefix + GameData.iconForRecipe(recipe, this.plan.data);
-            this.needs = new Set();
+            this.participant.needs = new Set();
             for(var ingredient of recipe.ingredients){
-                this.needs.add(this.plan.data.item[ingredient.name]);
+                this.participant.needs.add(this.plan.data.item[ingredient.name]);
             }
         }
         drawInCenter(ctx: CanvasRenderingContext2D, img: HTMLImageElement, o: Util.Orientation){
@@ -121,11 +129,8 @@ namespace Plan{
             this.drawInCenter(ctx, this.viewport.resourceOrientationArrow, this.orientation);
             this.drawInCenter(ctx, this.recipeIcon, 0);
             
-            if(this.missing.size > 0)
+            if(this.isAnyMissing())
                 this.drawInCenter(ctx, this.viewport.resourceAlert, 0);           
-        }
-        setMissing(missing: Set<GameData.Item>){
-            this.missing = missing;
         }
     }
 }

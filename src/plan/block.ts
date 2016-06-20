@@ -2,10 +2,7 @@
 
 namespace Plan{    
     export class Block extends ItemTile implements BusParticipant{
-        connectedTo: Bus;
-        needs: Set<GameData.Item> = new Set();
-        provides: Set<GameData.Item> = new Set();
-        blocks: Set<GameData.Item> =  new Set();
+        participant: BusParticipantData = new BusParticipantData();
         blocksItem: GameData.Item;
         
         constructor(plan: GamePlan){
@@ -18,13 +15,10 @@ namespace Plan{
         underlay(ctx: CanvasRenderingContext2D){
             ctx.drawImage(this.viewport.resourceBlock, 0, 0);
         }
-        setMissing(){
-        }
         setItem(item: GameData.Item){
             super.setItem(item);
-            this.blocks.clear();
-            this.blocks.add(item);
-            this.needs.add(item);
+            this.participant.blocks.clear();
+            this.participant.blocks.add(item);
             this.blocksItem = item;
         }
         isBusParticipant():boolean{
@@ -43,7 +37,7 @@ namespace Plan{
             itemButton.onclick =  () => {
                 var d = new Ui.SelectItem(this.plan, ()=>{
                     this.setItem(d.selected);
-                    this.updateState();
+                    this.updateIncludingNeighbours();
                 });
                 d.show();
             };

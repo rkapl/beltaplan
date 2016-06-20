@@ -21,36 +21,20 @@ namespace Plan{
         busConnections: BusConnection[] = [BusConnection.NO, BusConnection.NO, BusConnection.NO, BusConnection.NO];
         directParticipants: Set<BusParticipant> = new Set();
         
-        // data from the bus calculation algorithms
-        // all items available at this tile with the possible sources (computed by update_bus)
-        items: Map<GameData.Item, Set<BusParticipant>> =  new Map<GameData.Item, Set<BusParticipant>>();
+        // data from the bus calculation algorithms all items transported on this tile
+        items: Map<GameData.Item, Set<Connection>> =  new Map<GameData.Item, Set<Connection>>();
         blocked: Set<GameData.Item> = new Set();       
         itemIcons: HTMLImageElement[] = [];
+        
         // used by the graph algorithms
-        solved: boolean;
         visited: boolean;
         
         constructor(public plan: GamePlan){
             super(plan);
         }
-        destroy(){
-            super.destroy();
-            this.removeBusStart();
-            this.removeBusEnd();
-        }
         serialize(json){
             super.serialize(json);
             json.type = 'Bus';
-        }
-        removeBusStart(){
-            var idx = this.plan.busStarts.indexOf(this);
-            if(idx != -1)
-                this.plan.busStarts.splice(idx, 1);
-        }
-        removeBusEnd(){
-            var idx = this.plan.busEnds.indexOf(this);
-            if(idx != -1)
-                this.plan.busEnds.splice(idx, 1);
         }
         private isOrientedTowards(neighbor: Util.Orientation){
             var t = this.getNeighbour(neighbor);
@@ -60,16 +44,24 @@ namespace Plan{
             var t = this.getNeighbour(neighbor);
             return t.orientation == neighbor;
         }
+
         updateState(){
             this.directParticipants.clear();
             this.inputs.clear();
-            this.outputs.clear;
+            this.outputs.clear();
+            this.blocked.clear();
             // first check bus participants, reset bus connections
             for(var i = 0; i <4; i++){
                 var t = this.getNeighbour(i);
                 this.busConnections[i] = BusConnection.NO;  
-                if(t && t.isBusParticipant() && this.isOrientedTowards(i))
-                    this.directParticipants.add(<BusParticipant><any>t);
+                if(t && t.isBusParticipant() && this.isOrientedTowards(i)){
+                    var p = <BusParticipant><any>t;
+                    p.participant.connectedTo = this;
+                    this.directParticipants.add(p);
+                    p.participant.blocks.forEach((blocker) => {
+                        this.blocked.add(blocker);
+                    });
+                }
             }
             // now check for connected buses - we work relative to the NORTH of our bus tile
             var northAbsolute = Util.addOrientation(this.orientation, Util.Orientation.NORTH);
@@ -107,14 +99,6 @@ namespace Plan{
                 else if(this.busConnections[i] == BusConnection.OUT)
                     this.outputs.add(<Bus>this.getNeighbour(i));
             }
-            
-            // register us as bus ends/starts
-            this.removeBusStart();
-            this.removeBusEnd();
-            if(this.inputs.size == 0)
-                this.plan.busStarts.push(this);
-            if(this.outputs.size == 0)
-                this.plan.busEnds.push(this);
             
             super.updateState();
         }

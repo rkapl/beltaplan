@@ -1,13 +1,7 @@
 
 namespace Plan{
-    export interface BusParticipant{
-        connectedTo: Bus;
-        provides: Set<GameData.Item>;
-        needs: Set<GameData.Item>;
-        blocks: Set<GameData.Item>;
-        
-        setMissing(missing: Set<GameData.Item>);
-    }
+    
+
     
     class LoopException{
     }
@@ -17,9 +11,12 @@ namespace Plan{
     export interface GamePlanListener{
         changed(x: number, y: number);
     }
+    export class Connection{
+        from: BusParticipant;
+        to: BusParticipant;
+        item: GameData.Item;
+    }
     export class GamePlan{
-        public busStarts: Bus[] = [];
-        public busEnds: Bus[] = [];
         public viewport: Ui.Viewport;
         public listeners: Set<GamePlanListener> = new Set();
         
@@ -33,7 +30,7 @@ namespace Plan{
                     each(this.tiles[t]);
              }
         }
-        public savePlan(json){
+        savePlan(json){
             json.gameVersion = this.data.version;
             
             var tiles = [];
@@ -44,145 +41,100 @@ namespace Plan{
             });
             json.tiles = tiles;
         }
-        public forAllBusses(cb: (bus: Bus) => void){
+        forAllBusses(cb: (bus: Bus) => void){
             for(var tile in this.tiles){
                 if(this.tiles[tile] instanceof Bus)
                     cb(<Bus> this.tiles[tile]);
             }
         }
+        forAllParticipants(cb: (p: BusParticipant) => void){
+            this.forAllTiles((t) =>{
+               if(t.isBusParticipant())
+                  cb(<BusParticipant><any>t);
+            });
+        }
         
-        private bfsBus(roots: Bus[], visit: (bus: Bus) => Set<Bus>, reqs: (bus: Bus) => Set<Bus>){
-            this.forAllBusses((t: Bus) => t.solved = false);
-            var queue = roots.slice();
+        private bfsBus(roots: Bus[], visit: (bus: Bus, path: Bus[]) => Set<Bus>){
+            this.forAllBusses((t: Bus) => {
+                t.visited = false;
+            });
+            // queue paths
+            var queue = [];
+            for(var i = 0; i<roots.length; i++){
+                queue.push([roots[i]]);
+            }
+            
             while(queue.length > 0){
-                var bus = queue.pop();
-                bus.solved = true;
-                var nexts = visit(bus);
+                var path = queue.shift();
+                var bus = path[path.length - 1];
+                var nexts = visit(bus, path);
                 nexts.forEach((next) => {
-                    var hasUnsolved = false;
-                    reqs(next).forEach((input) => {
-                        if(!input.solved) 
-                            hasUnsolved = true;
-                    });
-                    if(!hasUnsolved)
-                        queue.push(next);
+                    if(!next.visited){
+                        next.visited = true;
+                        var newPath = path.slice();
+                        newPath.push(next);
+                        queue.push(newPath);
+                    }
                 });
             }
         }
-        
-        private checkLoop(roots: Bus[], next: (bus: Bus) => Set<Bus>): boolean{
-            this.forAllBusses((t: Bus) => {
-                t.solved = t.visited = false;
-            });
+        private addToBag<K,V>(bag: Map<K, Set<V>>, key: K, value: V){
+            if(!bag.has(key))
+                bag.set(key, new Set());
+            bag.get(key).add(value);
+        }        
+        private addConnection(item: GameData.Item, from: BusParticipant, to: BusParticipant, path: Bus[]){
+            var c = new Connection();
+            c.from = from;
+            c.to = to;
+            c.item =  item;
             
-            var visit = (b: Bus) => {
-                if(b.visited)
-                    throw new LoopException();
-                if(b.solved) return;
-                
-                b.visited = true;
-                next(b).forEach((nb: Bus) => visit(nb));
-                b.visited = false;
-                b.solved = true;
-            };
-            
-            try{
-                for(var i = 0; i<roots.length; i++)
-                    visit(roots[i]);
-            }catch (e){
-                return false;
+            this.addToBag(from.participant.fromConnections, item, c);
+            this.addToBag(from.participant.toConnections, item, c);
+            for(var i = 0; i<path.length; i++){
+                this.addToBag(path[i].items, item, c);
             }
-                
-            return true;
         }
-        
         updateBus(){
-            if(!this.checkLoop(this.busStarts, (bus) => bus.outputs)){
-                alert("There is a loop on your bus");
-                return;
-            }
-            
-            // clear
+            // clear 
             this.forAllBusses((t: Bus) => {
                 t.items.clear();
             });
-            // TODO: check that bus is acyclic and show where the cycle is if it is not
-            // contains all buses that have all input solved
-
-            var addItemSource = (bus: Bus, item: GameData.Item, source: BusParticipant) => {
-                if(!bus.items.has(item))
-                    bus.items.set(item, new Set());
-                bus.items.get(item).add(source)
-            };
-            // propagate sources (factories providing some items)
-            this.bfsBus(this.busStarts,
-                (bus: Bus) => {                                       
-                    bus.inputs.forEach( (input) => {                        
-                        input.items.forEach((sources, item) => {
-                            if(!input.blocked.has(item))
-                                sources.forEach((source) => addItemSource(bus, item, source));
-                        });
-                    });
-                    
-                    bus.blocked.clear();
-                    bus.directParticipants.forEach((c) => {
-                        var missing = new Set();
-                        c.needs.forEach((needs) => {
-                            if(!bus.items.has(needs)){
-                                missing.add(needs);
-                            }             
-                        });
-                        
-                        c.blocks.forEach((b) => bus.blocked.add(b));
-                        
-                        c.setMissing(missing);
-                        if(missing.size == 0) 
-                            c.provides.forEach((item) => addItemSource(bus, item, c));
-                    });
-                    
-                    return bus.outputs;
-                },
-                (bus: Bus) => bus.inputs
-            );
+            this.forAllParticipants((b) => {
+                b.participant.fromConnections.clear();
+                b.participant.toConnections.clear();
+            });
             
-            // now propagate sources that are not needed (remove them)
-            this.bfsBus(this.busEnds,
-                (bus: Bus) => {
-                    var needed : Set<GameData.Item> = new Set();;
-                    // populate needed from directly connected BusParticipants
-                    bus.directParticipants.forEach((c) => {
-                       c.needs.forEach((n) => {
-                           needed.add(n)
-                       });
-                       // we also include blocks, so that the stream of items
-                       // visibily ends at the block
-                       c.blocks.forEach((n) => {
-                           needed.add(n)
-                       });
+            // connect sinks to sources
+            this.forAllParticipants((from) => {
+                from.participant.needs.forEach((item) => {
+                    this.bfsBus([from.participant.connectedTo], (bus, path) => {
+                        bus.directParticipants.forEach((to) => {
+                            if(to.participant.provides.has(item)){
+                                this.addConnection(item, from, to, path);
+                            } 
+                        });
+                        
+                        if(bus.blocked.has(item))
+                            return new Set();
+                        return bus.inputs;
                     });
-                    // populate needed by propagating from bus outputs
-                    bus.outputs.forEach((output)=>{
-                       output.items.forEach((sources, item) => {
-                           needed.add(item);
-                       });
-                    });
-                    // remove all unneded items along with their sources
-                    bus.items.forEach((sources, item) =>{
-                        if(!needed.has(item))
-                            bus.items.delete(item);
-                    });
-                    
-                    return bus.inputs;
-                },
-                (bus: Bus) => bus.outputs
-            );
-            this.bfsBus(this.busStarts,
-                (bus: Bus) => {
+                });
+            });
+           
+            // update the icons (needs to be done in BFS order from the bus starts)
+            var busStarts = [];
+            this.forAllBusses((bus) => {
+                if(bus.inputs.size == 0)
+                    busStarts.push(bus);
+            })
+            this.bfsBus(busStarts,
+                (bus, path) => {
                     bus.updateIcons();
                     return bus.outputs;
-                },
-                (bus: Bus) => bus.inputs
+                }
             );
+            
             // and show the results
             this.forAllBusses((b) => b.updateIcons());
             if(this.viewport)

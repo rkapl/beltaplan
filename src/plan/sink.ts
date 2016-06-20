@@ -5,11 +5,8 @@ namespace Plan{
      * Typically used when a certain item is provided by some external factory.
      */
     export class Sink extends ItemTile implements BusParticipant{
-        connectedTo: Bus;
-        needs: Set<GameData.Item> = new Set();
-        provides: Set<GameData.Item> = new Set();
-        blocks: Set<GameData.Item> =  new Set();
-        needsItem: GameData.Item;
+        participant: BusParticipantData = new BusParticipantData();
+        private needsItem: GameData.Item;
         
         constructor(plan: GamePlan){
             super(plan);
@@ -20,8 +17,8 @@ namespace Plan{
         }
         setItem(item: GameData.Item){
             super.setItem(item);
-            this.needs.clear();
-            this.needs.add(item);
+            this.participant.needs.clear();
+            this.participant.needs.add(item);
             this.needsItem = item;
         }
         isBusParticipant():boolean{
@@ -31,9 +28,6 @@ namespace Plan{
             ctx.font = "14px sans-serif";
             ctx.textAlign = "center";
             ctx.textBaseline = "center";
-        }
-        setMissing(missing: any){
-            // can not happen
         }
         showInfo(box: HTMLElement){
             super.showInfo(box);
@@ -48,7 +42,7 @@ namespace Plan{
             itemButton.onclick =  () => {
                 var d = new Ui.SelectItem(this.plan, ()=>{
                     this.setItem(d.selected);
-                    this.updateState();
+                    this.updateIncludingNeighbours();
                 });
                 d.show();
             };

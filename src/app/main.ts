@@ -15,10 +15,13 @@ namespace App{
             hideSplash();
         });
     }
+    // listens to tile changes 
     export class TileSelectionListener implements Plan.GamePlanListener{
         changed(x: number, y:number){
-            if(selectedTile.position.x == x && selectedTile.position.y == y){
-                selectTile(null);
+            if(selectedTile){
+                if(selectedTile.position.x == x && selectedTile.position.y == y){
+                    selectTile(null);
+                }
             }
         }
     }
