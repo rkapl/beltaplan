@@ -9,6 +9,9 @@ namespace Plan{
         NO, IN, OUT
     };
     
+    var LOAD_FACTOR_REORDER_TRESHOLD = 0.4;
+    var MIN_GRID_SIZE = 3;
+    
     export class Bus extends TileBase{
         
         // padding between then belt and tile (for the UI)
@@ -154,7 +157,7 @@ namespace Plan{
             ctx.shadowColor = 'black';
             ctx.shadowBlur = 5;
             
-            var gridSize = Math.max(3, Math.ceil(Math.sqrt(this.itemIcons.length)))
+            var gridSize = Math.max(MIN_GRID_SIZE, Math.ceil(Math.sqrt(this.itemIcons.length)))
             for(var i = 0; i<this.itemIcons.length; i++){
                 if(!this.itemIcons[i])
                     continue;
@@ -169,7 +172,14 @@ namespace Plan{
             }                            
             ctx.restore();
         }
-        // called by update_bus after the bus is computed (in BFS order)
+        private loadFactor<T>(array: T[]): number{
+            var used = 0;
+            for(var i = 0; i<array.length; i++)
+                if(array[i])
+                    used++;
+            return used / array.length; 
+        }
+        // called by update_bus after the bus is computed (called in BFS order)
         updateIcons(){
             this.itemIcons = new Array();
             // try to maintain ordering of our inputs
@@ -193,6 +203,7 @@ namespace Plan{
                     }
                 }
             }
+            // add everything that did not fit in
             var lastInsertPos = 0;
             this.items.forEach((sources, item) => {
                 if(added.has(item))
@@ -206,6 +217,16 @@ namespace Plan{
                 else
                     this.itemIcons[lastInsertPos] = this.imageForItem(item);
             });
+            // if we did not manage to keep the load factor, compress
+            if(this.loadFactor(this.itemIcons) < LOAD_FACTOR_REORDER_TRESHOLD 
+               && this.itemIcons.length > MIN_GRID_SIZE*MIN_GRID_SIZE){
+                var reorderedIcons = [];
+                for(var i = 0; i<this.itemIcons.length; i++){
+                    //if(this.itemIcons[i])
+                    //    reorderedIcons.push(this.itemIcons[i]);
+                }
+                this.itemIcons = reorderedIcons;
+            }
         }
         private imageForItem(item: GameData.Item){
             var img = new Image();
