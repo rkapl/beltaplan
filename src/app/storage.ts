@@ -65,9 +65,7 @@ namespace App{
             });
          
         if(!localStorageSupported){
-            loadData('base-0.12', (data) => {
-                create('Example Plan', createDefaultPlan(data), callback);
-            });
+            loadExamplePlan(callback);
         }else{
             
             // prepare the database
@@ -91,11 +89,17 @@ namespace App{
             if(lastPlanId){
                 loadById(lastPlanId, callback);
             }else{
-                loadData('base-0.12', (data) => {
-                    create('Example Plan', createDefaultPlan(data), callback);
-                });
+                loadExamplePlan(callback);
             }
         } 
+    }
+    function loadExamplePlan(callback: ReadyCallback){
+        var req = new XMLHttpRequest();
+        req.addEventListener('load', () => {
+            loadFromJSON(req.responseText, callback);
+        });
+        req.open('GET', 'default-plan.bpl', true);
+        req.send();
     }
     export function planChanged(){
         // request for save
@@ -124,7 +128,7 @@ namespace App{
                 return;
             }
             htmlPlanName.value = json['planName'];
-            var plan = Plan.loadPlan(json, (plan: Plan.GamePlan) => {
+            var plan = Plan.GamePlan.loadPlan(json, (plan: Plan.GamePlan) => {
                 setPlan(plan);
                 callback(); 
             });

@@ -218,22 +218,26 @@ namespace Plan{
             if(tile)
                 tile.updateState();
         }
+        public static loadPlanWithData(json, data: GameData.Data): GamePlan{
+            var plan = new GamePlan(data);
+            var tiles = <any[]> json.tiles;
+            for(var i = 0; i<tiles.length; i++){
+                var type = tiles[i].type;
+                if(knownTiles.indexOf(type) == -1){
+                    App.error("Unknown tile type");
+                }
+                var tile = <Tile> new Plan[type](plan);
+                tile.deserialize(tiles[i]);
+                plan.setXY(tiles[i].x, tiles[i].y, tile);
+            }
+            plan.updateBus(); 
+            return plan;
+        }
+        public static loadPlan(json, cb: (plan: GamePlan) => void){
+            App.loadData(json.gameVersion, (data: GameData.Data) => {
+                cb(GamePlan.loadPlanWithData(json, data));
+            });
+        }
     }
-    export function loadPlan(json, cb: (plan: GamePlan) => void){
-        App.loadData(json.gameVersion, (data: GameData.Data) => {
-           var plan = new GamePlan(data);
-           var tiles = <any[]> json.tiles;
-           for(var i = 0; i<tiles.length; i++){
-               var type = tiles[i].type;
-               if(knownTiles.indexOf(type) == -1){
-                   App.error("Unknown tile type");
-               }
-               var tile = <Tile> new Plan[type](plan);
-               tile.deserialize(tiles[i]);
-               plan.setXY(tiles[i].x, tiles[i].y, tile);
-           }
-           plan.updateBus(); 
-           cb(plan);
-        });
-    }
+    
 }
