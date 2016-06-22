@@ -72,7 +72,8 @@ filter_recipe = {
     name = true,
     type = true,
     results = true,
-    ingredients = true
+    ingredients = true,
+    category = true,
 }
 
 filter_item = {

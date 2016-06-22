@@ -26,7 +26,12 @@ namespace App{
        
     export function initPlacementForPlan(){
         defaultProducer = selectedProducer = plan.data.producers["assembling-machine-3"];
-        placementDefaultRecipes = [plan.data.recipe['iron-gear-wheel']];
+        placementDefaultRecipes = [
+            plan.data.recipe['iron-gear-wheel'],
+            plan.data.recipe['basic-oil-processing'],
+            plan.data.recipe['plastic-bar'],
+            plan.data.recipe['iron-plate']
+       ];
         placementDefaultItem = plan.data.item['iron-gear-wheel'];
 
         for(var i = 0; i<placementDefaultRecipes.length; i++){
@@ -44,12 +49,16 @@ namespace App{
         placementRectangle = <HTMLImageElement> document.getElementById('placement-rectangle');
         
         // setup placement buttons and register their events
+        var producerPlacementButton = 
         placementButtons = [
             new PlaceButton('button-place-bus', () => new Plan.Bus(plan)), 
-            new PlaceButton('button-place-producer', () => { 
+            producerPlacementButton = new PlaceButton('button-place-producer', () => { 
                 var f = new Plan.Factory(plan, selectedProducer);
-                // TODO: chose based on actual support
                 f.setRecipe(placementDefaultRecipes[0]);
+                for(var i = 0; i<placementDefaultRecipes.length; i++){
+                    if(GameData.canProducerProduceRecipe(selectedProducer, placementDefaultRecipes[i]))
+                        f.setRecipe(placementDefaultRecipes[i]);
+                }
                 return f;
             }, 'button-place-producer-click-area'),
             new PlaceButton('button-place-blocker', () => {
@@ -84,6 +93,13 @@ namespace App{
                 };
             })(placementButtons[i]);
         }
+        document.getElementById('new-producer-type-button').addEventListener('click', () => {
+            var dlg = new Ui.SelectProducer(plan, () => {
+                selectProducer(dlg.selected);
+                placementButtons[1].htmlClickHandler.click();
+            });
+            dlg.show();
+        }); 
     }
     export function selectProducer(producer: GameData.Producer){
         selectedProducer = producer;

@@ -44,12 +44,7 @@ namespace App{
         document.getElementById('button-recalculate').addEventListener('click', () => {
            plan.updateBus(); 
         });
-        document.getElementById('new-producer-type-button').addEventListener('click', () => {
-            var dlg = new Ui.SelectProducer(plan, () => {
-                selectProducer(dlg.selected);
-            });
-            dlg.show();
-        });       
+              
         
         window.addEventListener('keypress', (ev) => {
             if(ev.charCode == 114 && currentMode == Mode.NORMAL && selectedTile){

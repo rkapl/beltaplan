@@ -2,11 +2,15 @@ namespace GameData{
     // helper types for the raw data
     type Box = number[][];
     
+    export interface Dictionary<T>{
+        [id: string]: T;
+    }
+    
     // raw data imported from the json
     export interface Data{
-        producers: { [id: string]: Producer};
-        item: { [id: string]: Item};
-        recipe: { [id: string]: Recipe};
+        producers: Dictionary<Producer>;
+        item: Dictionary<Item>;
+        recipe: Dictionary<Recipe>;
         
         // prefix and version is filled by the loader
         // all data in this dataset can be downloaded by prepending this url
@@ -65,6 +69,7 @@ namespace GameData{
         type: string;
         results: RecipeResult[];
         ingredients: RecipeIngredient[];
+        category: string;
     }
     export interface FactorioQuantity{
         amount: number;
@@ -91,6 +96,12 @@ namespace GameData{
             return producer.tile_height;
         else
             return Math.ceil(producer.collision_box[1][1] - producer.collision_box[0][1]);
+    }
+    export function canProducerProduceRecipe(producer: Producer, r: Recipe): boolean{
+        var category = r.category;
+        if(!category)
+            category = "crafting";
+        return producer.crafting_categories.indexOf(category) != -1;
     }
 }
 

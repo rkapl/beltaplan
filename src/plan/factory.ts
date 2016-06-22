@@ -81,10 +81,12 @@ namespace Plan{
             var recipeButton = document.createElement('button');
             recipeButton.innerText = 'Change recipe';
             recipeButton.onclick =  () => {
-                var d = new Ui.SelectRecipe(this.plan, ()=>{
-                    this.setRecipe(d.selected);
-                    this.updateIncludingNeighbours();
-                });
+                var d = new Ui.SelectRecipe(this.plan,
+                    (r: GameData.Recipe) => GameData.canProducerProduceRecipe(this.type, r), 
+                    ()=>{
+                        this.setRecipe(d.selected);
+                        this.updateIncludingNeighbours();
+                    });
                 d.show();
             };
             contents.appendChild(recipeButton);
