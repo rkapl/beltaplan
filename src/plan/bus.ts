@@ -12,6 +12,9 @@ namespace Plan{
     var LOAD_FACTOR_REORDER_TRESHOLD = 0.5;
     var MIN_GRID_SIZE = 3;
     
+    // name of the belt we want to show transport speeds relative to
+    var transportSpeedDisplay : string = null; 
+    
     export class Bus extends TileBase{
         
         // padding between then belt and tile (for the UI)
@@ -269,21 +272,49 @@ namespace Plan{
         }
         showInfo(box: HTMLElement){
             super.showInfo(box);
-            var contents = this.showInfoStandardButtons();
+            var contents = this.showInfoStandardButtons((footer)=>{
+                var changeBelt = new Image();
+                changeBelt.src = 'img/belt.svg';
+                changeBelt.classList.add('action-button');
+                changeBelt.classList.add('d3');
+                changeBelt.onclick = ()=>{
+                    var availableBelts:string[] = [];
+                    for(var belt in this.plan.data.settings.belt){
+                        availableBelts.push(belt);
+                    }
+                    var i = availableBelts.indexOf(transportSpeedDisplay);
+                    i = (i + 2) % (availableBelts.length + 1) - 1;
+                    transportSpeedDisplay = availableBelts[i];
+                    this.updateInfo();
+                };
+                footer.appendChild(changeBelt);
+            });
+            
+            var beltSettings = this.plan.data.settings.belt[transportSpeedDisplay];
+            
             var table = document.createElement('table');
             table.classList.add('bus-contents');
             this.items.forEach((connections, item) => {
                 var tr = document.createElement('tr');
                 
                 var amountTd = document.createElement('td');
+                amountTd.classList.add('amount');
                 var amount = 0;
                 connections.forEach((c) => amount += c.consumption);
+                if(beltSettings && item.type != 'fluid')
+                    amount /= beltSettings.speed * 60;
                 amountTd.innerText = amount.toFixed(2);
                 tr.appendChild(amountTd);
                 
                 var unitTd = document.createElement('td');
-                unitTd.classList.add('unit');
-                unitTd.innerText = 'i/m';
+                if(beltSettings && item.type != 'fluid'){
+                    var beltImg = document.createElement('img');
+                    beltImg.src = this.plan.data.prefix + this.plan.data.item[transportSpeedDisplay].icon;
+                    unitTd.appendChild(beltImg);
+                }else{
+                    unitTd.classList.add('unit');
+                    unitTd.innerText = 'i/m';
+                }
                 tr.appendChild(unitTd);
                               
                 var iconTd = document.createElement('td');

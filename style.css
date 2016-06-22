@@ -218,7 +218,10 @@ button.fill{
     background-color: red;
 }
 .bus-contents{
-    font-size: 12pt;
+    font-size: 11pt;
+}
+.bus-contents .amount{
+    text-align: right;
 }
 .bus-contents img{
     width: 24px;

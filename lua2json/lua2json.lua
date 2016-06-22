@@ -79,7 +79,8 @@ filter_recipe = {
 
 filter_item = {
     name = true,
-    icon = true
+    icon = true,
+    type = true
 }
 
 

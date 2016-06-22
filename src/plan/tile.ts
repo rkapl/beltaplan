@@ -145,8 +145,10 @@ namespace Plan{
             
             return div;
         }
-        showInfoStandardButtons(): HTMLDivElement{
+        // make a footer with buttons, return a div where a content should be placed
+        showInfoStandardButtons(footerCallback?: (footer: HTMLElement) => void): HTMLDivElement{
             var footer = document.createElement('div');
+            
             footer.classList.add('footer');
             var rotate = new Image();
             rotate.src = 'img/rotate.svg';
@@ -166,6 +168,9 @@ namespace Plan{
             contents.classList.add('contents');
             this.infoBox.appendChild(contents);
             this.infoBox.appendChild(footer);
+            
+            if(footerCallback)
+                footerCallback(footer);
             
             return contents;
         }

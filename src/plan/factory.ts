@@ -1,6 +1,7 @@
 ///<reference path="tile.ts" />
 
 namespace Plan{
+   
     export class Factory extends TileBase implements BusParticipant{
         private animation: Ui.Animation;
         private recipe: GameData.Recipe;
@@ -67,6 +68,9 @@ namespace Plan{
             this.setType(this.plan.data.producers[json.producer]);
             this.setRecipe(this.plan.data.recipe[json.recipe])
             this.consumption = json.consumption;
+            if(this.consumption == undefined)
+                // JSON compatibility
+                this.consumption = 0;
         }
         showInfo(box: HTMLElement){
             super.showInfo(box);
@@ -121,15 +125,17 @@ namespace Plan{
                 contents.appendChild(this.createNumberInputField('Over-production', 'consumption', 'i/m'));
             }
             
-            contents.appendChild(this.createPropertyDisplay('Production cycles:', this.cpm.toFixed(2), 'c/m'));
-            
-            var energy = this.recipe.energy_required;
-            if(!energy)
-                energy = 0.5; 
+            if(this.cpm != undefined){
+                contents.appendChild(this.createPropertyDisplay('Production cycles:', this.cpm.toFixed(2), 'c/m'));
                 
-            var cycle_time = energy / this.type.crafting_speed / 60; 
-            var producers = this.cpm * cycle_time;
-            contents.appendChild(this.createPropertyDisplay('Producers needed:', producers.toFixed(2), ''));
+                var energy = this.recipe.energy_required;
+                if(!energy)
+                    energy = 0.5; 
+                    
+                var cycle_time = energy / this.type.crafting_speed / 60; 
+                var producers = this.cpm * cycle_time;
+                contents.appendChild(this.createPropertyDisplay('Producers needed:', producers.toFixed(2), ''));
+            }
         }
         isBusParticipant(): boolean{
             return true;

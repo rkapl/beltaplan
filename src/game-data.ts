@@ -17,10 +17,20 @@ namespace GameData{
         prefix: string;
         // game version from which the data come
         version: string;
+        // contents of settings.json
+        settings: Settings;
     }
+    export interface Settings{
+        belt: {[key: string]: BeltSetting};
+    }
+    export interface BeltSetting{
+        speed: number;
+    }
+    
     export interface Item{
-        icon: string
+        icon: string;
         name: string;
+        type: string;
     }
     export interface Producer{
         icon: string;
