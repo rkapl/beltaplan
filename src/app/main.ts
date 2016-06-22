@@ -52,10 +52,13 @@ namespace App{
         });       
         
         window.addEventListener('keypress', (ev) => {
-            if(ev.charCode == 114 && currentMode == Mode.NORMAL){
-                if(selectedTile){
-                    selectedTile.rotate();
-                }
+            if(ev.charCode == 114 && currentMode == Mode.NORMAL && selectedTile){
+                selectedTile.rotate();
+            }
+        });
+        window.addEventListener('keydown', (ev) => {
+            if(ev.keyCode == 46 && currentMode == Mode.NORMAL && selectedTile){
+                plan.set(selectedTile.position, null);
             }
         });
         
