@@ -74,6 +74,7 @@ filter_recipe = {
     results = true,
     ingredients = true,
     category = true,
+    energy_required = true
 }
 
 filter_item = {
@@ -188,13 +189,17 @@ local wanted_items = {
 for name,recipe in pairs(data['recipe']) do
     -- We have to normalize the results and ingredients. So far, three formats 
     -- have been found:
-    -- 1) recipe.result = 'item-name' (for results only)
+    -- 1) recipe.result = 'item-name' + recipe.result_count (for results only)
     -- 2) recipe.ingredients/results = { {'item-name', 'qty'}}
     -- 3) recipe.ingredients/results = { {name = 'item', amount = 'qty', type = 'fluid/item'}}
     -- All formats will be normalized into the third
     
     if recipe.result then
-        recipe.results = {{name = recipe.result, amount = 1, type = 'item'}}
+        local amount = recipe.result_count
+        if not amount then
+            amount = 1
+        end
+        recipe.results = {{name = recipe.result, amount = amount, type = 'item'}}
     end
     
     local function normalize_and_collect(items)

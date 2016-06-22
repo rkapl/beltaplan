@@ -8,6 +8,9 @@ namespace Plan{
         constructor(plan: GamePlan){
             super(plan);
         }
+        itemTransferFunction(){
+            
+        }
         serialize(json){
             super.serialize(json);
             json.type = 'Block';

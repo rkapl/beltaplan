@@ -272,13 +272,24 @@ namespace Plan{
             var contents = this.showInfoStandardButtons();
             var table = document.createElement('table');
             table.classList.add('bus-contents');
-            this.items.forEach((_, item) => {
+            this.items.forEach((connections, item) => {
                 var tr = document.createElement('tr');
                 
+                var amountTd = document.createElement('td');
+                var amount = 0;
+                connections.forEach((c) => amount += c.consumption);
+                amountTd.innerText = amount.toFixed(2);
+                tr.appendChild(amountTd);
+                
+                var unitTd = document.createElement('td');
+                unitTd.classList.add('unit');
+                unitTd.innerText = 'i/m';
+                tr.appendChild(unitTd);
+                              
                 var iconTd = document.createElement('td');
                 var icon = document.createElement('img');;
                 icon.src = this.plan.data.prefix + item.icon;
-                iconTd.appendChild(icon);                
+                iconTd.appendChild(icon);
                 tr.appendChild(iconTd);
                 
                 var nameTd = document.createElement('td');

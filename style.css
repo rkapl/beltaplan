@@ -160,16 +160,24 @@ button.fill{
     width: 250px;
 }
 #infobox .contents > div{
-    margin-top: 5px;
-    margin-bottom: 5px;
+    margin-top: 7px;
+    margin-bottom: 7px;
 }
 #infobox h3{
     margin: 0px;
     font-size: 18px;
 }
-#infobox label{
+#infobox .key-value-pair label{
     font-weight: bold;
-    padding-right: 1em;
+    padding-right: 0.5em;
+}
+#infobox .key-value-pair input{
+    width: 50px;
+    border: 1px solid black;
+    padding: 3px;
+}
+#infobox .key-value-pair span{
+    padding-left: 0.3em 
 }
 #infobox .contents{
     overflow-y: auto;
@@ -183,8 +191,10 @@ button.fill{
 }
 #infobox button{
     margin: auto;
-    margin-top: 5px;
-    margin-bottom: 5px;
+    margin-top: 7px;
+    margin-bottom: 7px;
+    padding-top: 3px;
+    padding-bottom: 3px;
 }
 #infobox hr{
     width: 70%;
@@ -215,7 +225,9 @@ button.fill{
     height: 24px;
     vertical-align: middle;
 }
-
+.bus-contents .unit{
+    padding-right: 0.3em;
+}
 
 
 #dialog{

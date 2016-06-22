@@ -70,6 +70,7 @@ namespace GameData{
         results: RecipeResult[];
         ingredients: RecipeIngredient[];
         category: string;
+        energy_required: number;
     }
     export interface FactorioQuantity{
         amount: number;

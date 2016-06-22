@@ -7,11 +7,34 @@ namespace Plan{
         participant: BusParticipantData = new BusParticipantData();
         private recipeIcon: HTMLImageElement;
         private type: GameData.Producer;
+        private consumption: number = 0;
+        private cpm: number;
         
         constructor(plan: GamePlan, type: GameData.Producer){
             super(plan);
             if(type)
                 this.setType(type);
+        }
+        itemTransferFunction(){
+            this.cpm = 0; // cycles per minute
+            for(var i = 0; i<this.recipe.results.length; i++){
+                var result = this.recipe.results[i];
+                var resultItem = this.plan.data.item[result.name];
+                var needed = this.participant.fromConnectionsConsumption(resultItem);
+                if(this.recipe.results.length == 1)
+                    needed += this.consumption;
+                    
+                this.cpm = Math.max(this.cpm, needed/result.amount);
+            }
+            
+            for(var i = 0; i<this.recipe.ingredients.length; i++){
+                var ingredient = this.recipe.ingredients[i];
+                var ingredientItem = this.plan.data.item[ingredient.name];
+                if(this.participant.toConnections.has(ingredientItem)){
+                    var c = this.participant.toConnections.get(ingredientItem);
+                    c.consumption = ingredient.amount * this.cpm;
+                }
+            }
         }
         isMissing(item: GameData.Item): boolean{
             return !this.participant.toConnections.has(item);
@@ -36,11 +59,14 @@ namespace Plan{
             json.type = 'Factory';
             json.recipe = this.recipe.name;
             json.producer = this.type.name;
+            if(this.recipe.results.length == 1)
+                json.consumption = this.consumption;
         }
         deserialize(json){
             super.deserialize(json);
             this.setType(this.plan.data.producers[json.producer]);
             this.setRecipe(this.plan.data.recipe[json.recipe])
+            this.consumption = json.consumption;
         }
         showInfo(box: HTMLElement){
             super.showInfo(box);
@@ -90,6 +116,20 @@ namespace Plan{
                 d.show();
             };
             contents.appendChild(recipeButton);
+            
+            if(this.recipe.results.length == 1){
+                contents.appendChild(this.createNumberInputField('Over-production', 'consumption', 'i/m'));
+            }
+            
+            contents.appendChild(this.createPropertyDisplay('Production cycles:', this.cpm.toFixed(2), 'c/m'));
+            
+            var energy = this.recipe.energy_required;
+            if(!energy)
+                energy = 0.5; 
+                
+            var cycle_time = energy / this.type.crafting_speed / 60; 
+            var producers = this.cpm * cycle_time;
+            contents.appendChild(this.createPropertyDisplay('Producers needed:', producers.toFixed(2), ''));
         }
         isBusParticipant(): boolean{
             return true;

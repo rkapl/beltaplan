@@ -7,13 +7,23 @@ namespace Plan{
     export class Sink extends ItemTile implements BusParticipant{
         participant: BusParticipantData = new BusParticipantData();
         private needsItem: GameData.Item;
+        private consumption: number = 5;
         
         constructor(plan: GamePlan){
             super(plan);
         }
+        itemTransferFunction(){
+            var c = this.participant.toConnections.get(this.needsItem);
+            c.consumption = this.consumption;
+        }
         serialize(json){
             super.serialize(json);
             json.type = 'Sink';
+            json.consumption = this.consumption;
+        }
+        deserialize(json){
+            super.deserialize(json);
+            this.consumption = json.consumption;
         }
         setItem(item: GameData.Item){
             super.setItem(item);
@@ -49,6 +59,8 @@ namespace Plan{
                 d.show();
             };
             contents.appendChild(itemButton);
+            
+            contents.appendChild(this.createNumberInputField('Consumption:', 'consumption', 'i/m'));
         }
     }
 }

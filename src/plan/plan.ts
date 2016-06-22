@@ -1,23 +1,13 @@
 
-namespace Plan{
-    
-
-    
-    class LoopException{
-    }
-    
+namespace Plan{  
     var knownTiles = ['Block', 'Bus', 'Factory', 'Sink', 'Source'];
          
     export interface GamePlanListener{
         changed(x: number, y: number);
     }
-    export class Connection{
-        from: BusParticipant;
-        to: BusParticipant;
-        item: GameData.Item;
-    }
-    // exception used to stop BFS search
-    class Connected{}
+    
+    class LoopException{}
+    class BreakLoopException{}
     export class GamePlan{
         public viewport: Ui.Viewport;
         public listeners: Set<GamePlanListener> = new Set();
@@ -96,7 +86,7 @@ namespace Plan{
             for(var i = 0; i<path.length; i++){
                 this.addToBag(path[i].items, item, c);
             }
-            from.participant.toConnections.set(item, c);
+            to.participant.toConnections.set(item, c);
         }
         updateBus(){
             // clear 
@@ -110,16 +100,16 @@ namespace Plan{
             });
             
             // connect sinks to sources
-            this.forAllParticipants((from) => {
-                if(!from.participant.connectedTo)
+            this.forAllParticipants((to) => {
+                if(!to.participant.connectedTo)
                     return;
-                from.participant.needs.forEach((item) => {
+                to.participant.needs.forEach((item) => {
                     try{
-                        this.bfsBus([from.participant.connectedTo], (bus, path) => {
-                            bus.directParticipants.forEach((to) => {
-                                if(to.participant.provides.has(item)){
+                        this.bfsBus([to.participant.connectedTo], (bus, path) => {
+                            bus.directParticipants.forEach((from) => {
+                                if(from.participant.provides.has(item)){
                                     this.addConnection(item, from, to, path);
-                                    throw new Connected();
+                                    throw new BreakLoopException();
                                 } 
                             });
                             
@@ -128,7 +118,7 @@ namespace Plan{
                             return bus.inputs;
                         });
                     }catch(e){
-                        if(!(e instanceof Connected))
+                        if(!(e instanceof BreakLoopException))
                             throw e;
                     }
                 });
@@ -148,13 +138,42 @@ namespace Plan{
             );
             
             // if the bus starts with a loop, we might loose some updateIcons,
-            // so be sure
+            // so be sure to catch all
             this.forAllBusses((b) => {
                 if(!b.visited)
                     b.updateIcons()
             });
             
-            // and show the resultsa
+            // figure out the item flow
+            this.forAllParticipants((p) => {
+               p.participant.forAllFromConnections((c) => c.ready = false); 
+            });
+            
+            var queue:BusParticipant[] = [];
+            this.forAllParticipants((p) => {
+                if(p.participant.areAllFromConnectionsReady())
+                    queue.push(p);
+            });
+            while(queue.length > 0){
+                var p = queue.pop();
+                p.itemTransferFunction();
+                p.participant.toConnections.forEach((c) =>{
+                    c.ready = true
+                    if(c.from.participant.areAllFromConnectionsReady())
+                        queue.push(c.from);
+                });
+            }
+            // if we have a loop, some parts will not be solved
+            var unsolved = [];
+            this.forAllParticipants((p) => {
+                if(!p.participant.areAllFromConnectionsReady())
+                    unsolved.push(p);
+            });
+            if(unsolved.length > 0){
+                alert('There is a loop in the item production pipeline. Some parts were not solved.');
+            }
+            
+            // and show the results
             if(this.viewport)
                 this.forAllTiles((t) => t.updateHtml());
         }

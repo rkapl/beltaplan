@@ -104,6 +104,47 @@ namespace Plan{
             ctx.drawImage(img, - img.width/2, - img.height/2);
             ctx.restore();
         }
+        createNumberInputField(text: string, binding: string, unit: string){
+            var row = document.createElement('div');
+            row.classList.add('key-value-pair');
+            
+            var label = document.createElement('label');
+            label.innerText = text;
+            row.appendChild(label);
+            
+            var input = document.createElement('input');
+            input.value = this[binding];
+            input.type = 'number';
+            input.min = '0';
+            input.onchange = () => {
+                this[binding] = input.value;
+            };
+            row.appendChild(input);
+            
+            var unitLabel = document.createElement('span');
+            unitLabel.innerText = unit;
+            row.appendChild(unitLabel);
+            
+            return row;
+        }
+        createPropertyDisplay(text: string, value: string, unit: string){
+            var div = document.createElement('div');
+            div.classList.add('key-value-pair');
+            
+            var label = document.createElement('label');
+            label.innerText = text;
+            div.appendChild(label);
+            
+            var valueSpan = document.createElement('span');
+            valueSpan.innerText = value;
+            div.appendChild(valueSpan);
+            
+            var unitSpan = document.createElement('span');
+            unitSpan.innerText = unit;
+            div.appendChild(unitSpan);
+            
+            return div;
+        }
         showInfoStandardButtons(): HTMLDivElement{
             var footer = document.createElement('div');
             footer.classList.add('footer');

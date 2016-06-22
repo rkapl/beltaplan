@@ -11,6 +11,9 @@ namespace Plan{
         constructor(plan: GamePlan){
             super(plan);
         }
+        itemTransferFunction(){
+            
+        }
         setItem(item: GameData.Item){
             super.setItem(item);
             this.participant.provides.clear();
@@ -47,6 +50,9 @@ namespace Plan{
                 d.show();
             };
             contents.appendChild(itemButton);
+            
+            contents.appendChild(this.createPropertyDisplay('Provides', 
+                this.participant.fromConnectionsConsumption(this.providesItem).toFixed(), 'i/m'));
         }
     }
 }

@@ -42,7 +42,9 @@ namespace App{
             }
         });
         document.getElementById('button-recalculate').addEventListener('click', () => {
-           plan.updateBus(); 
+           plan.updateBus();
+           if(selectedTile)
+                selectedTile.updateInfo(); 
         });
               
         
