@@ -97,7 +97,13 @@ namespace Plan{
             title.innerText = this.constructor['name'];
             this.infoBox.appendChild(title);
         }
-        
+        drawInCenter(ctx: CanvasRenderingContext2D, img: HTMLImageElement, o: Util.Orientation){
+            ctx.save();
+            ctx.translate(-this.shift.x + Ui.Sizes.TILE_SIZE/2, -this.shift.y + Ui.Sizes.TILE_SIZE/2);
+            ctx.rotate(o*Math.PI/2);
+            ctx.drawImage(img, - img.width/2, - img.height/2);
+            ctx.restore();
+        }
         showInfoStandardButtons(): HTMLDivElement{
             var footer = document.createElement('div');
             footer.classList.add('footer');

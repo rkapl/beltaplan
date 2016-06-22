@@ -24,10 +24,12 @@ namespace Plan{
         isBusParticipant():boolean{
             return true;
         }
+        isItemMissing(){
+            return !this.participant.toConnections.has(this.needsItem);
+        }
         overlay(ctx: CanvasRenderingContext2D){
-            ctx.font = "14px sans-serif";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "center";
+            if(this.isItemMissing())
+                this.drawInCenter(ctx, this.viewport.resourceAlert, 0);   
         }
         showInfo(box: HTMLElement){
             super.showInfo(box);

@@ -108,13 +108,6 @@ namespace Plan{
                 this.participant.needs.add(this.plan.data.item[ingredient.name]);
             }
         }
-        drawInCenter(ctx: CanvasRenderingContext2D, img: HTMLImageElement, o: Util.Orientation){
-            ctx.save();
-            ctx.translate(-this.shift.x + Ui.Sizes.TILE_SIZE/2, -this.shift.y + Ui.Sizes.TILE_SIZE/2);
-            ctx.rotate(o*Math.PI/2);
-            ctx.drawImage(img, - img.width/2, - img.height/2);
-            ctx.restore();
-        }
         updateHtml(){
             super.updateHtml();
             var canvas = <HTMLCanvasElement>this.html;
