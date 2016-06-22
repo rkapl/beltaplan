@@ -29,6 +29,9 @@ namespace Ui{
                 this.htmlDialog.addEventListener('keyup', (ev) => {
                     ev.stopPropagation();
                 });
+                this.htmlDialog.addEventListener('wheel', (ev) => {
+                   ev.stopPropagation(); 
+                });
                 window.addEventListener('keydown', (ev) => {
                      if(ev.keyCode == 27){
                         this.hide();

@@ -4,7 +4,9 @@ namespace App{
         ():void;
     }
     
-    var localStorageSupported = window.indexedDB && window.localStorage;
+    // TODO: local storage is not finished and the UI is disabled as of yet
+    //var localStorageSupported = window.indexedDB && window.localStorage;
+    var localStorageSupported = false;
     var localStorageDb: IDBDatabase;
     var htmlPlanName: HTMLInputElement;
     
@@ -46,19 +48,9 @@ namespace App{
             var buttonImport = document.createElement('button');
             buttonImport.innerText = "Import";
             buttonImport.addEventListener('click', () => {
-                try{
-                    var json = JSON.parse(textArea.value);
-                    if(json['saveData'] != 'beltaplan'){
-                        warning("Not a valid plan");
-                        return;
-                    }
-                    var plan = Plan.loadPlan(json, (plan: Plan.GamePlan) => {
-                       setPlan(plan); 
-                       this.hide();
-                    });
-                }catch(syntaxError){
-                    warning((<SyntaxError>syntaxError).message);
-                }
+                loadFromJSON(textArea.value, () => {
+                    this.hide();
+                });
             });
             serializeBar.appendChild(buttonImport);
             
@@ -67,17 +59,17 @@ namespace App{
     }
 
     export function initLocalStorage(callback:ReadyCallback){
-        
-        htmlPlanName = <HTMLInputElement> document.getElementById('plan-name'); 
-        if(!localStorageSupported){
-            loadData('base-0.12', (data) => {
-                setPlan(createDefaultPlan(data));
-                callback();
-            });
-        }else{
-            document.getElementById('button-open').addEventListener('click', () => {
+        htmlPlanName = <HTMLInputElement> document.getElementById('plan-name');
+        document.getElementById('button-open').addEventListener('click', () => {
                 new OpenPlanDialog().show();
             });
+         
+        if(!localStorageSupported){
+            loadData('base-0.12', (data) => {
+                create('Example Plan', createDefaultPlan(data), callback);
+            });
+        }else{
+            
             // prepare the database
             var req = indexedDB.open('plans');
             req.onupgradeneeded = () =>{
@@ -119,9 +111,26 @@ namespace App{
         App.plan = plan;
         htmlPlanName.value = name;
         setPlan(plan);
+        cb();
     }
     function loadById(planId: number, cb: ReadyCallback ){
         
+    }
+    function loadFromJSON(text: string, callback: () => void){
+        try{
+            var json = JSON.parse(text);
+            if(json['saveData'] != 'beltaplan'){
+                warning("Not a valid plan");
+                return;
+            }
+            htmlPlanName.value = json['planName'];
+            var plan = Plan.loadPlan(json, (plan: Plan.GamePlan) => {
+                setPlan(plan);
+                callback(); 
+            });
+        }catch(syntaxError){
+            warning((<SyntaxError>syntaxError).message);
+        }
     }
     function save(cb: ReadyCallback){
         
