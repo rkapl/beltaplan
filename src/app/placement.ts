@@ -124,13 +124,13 @@ namespace App{
         selectedPlacementButton = null;
     }
     function hover(ev: MouseEvent){
-        var pos = viewport.clientToGrid(new Util.Vector(ev.x, ev.y));
+        var pos = viewport.clientToGrid(new Util.Vector(ev.clientX, ev.clientY));
         placementRectangle.style.left = Math.floor(pos.x) * Ui.Sizes.TILE_SIZE + "px";
         placementRectangle.style.top = Math.floor(pos.y) * Ui.Sizes.TILE_SIZE + "px";
         placementRectangle.style.display = "block";
     }
     function click(ev: MouseEvent){
-        var pos = viewport.clientToGrid(new Util.Vector(ev.x, ev.y));
+        var pos = viewport.clientToGrid(new Util.Vector(ev.clientX, ev.clientY));
         pos.floor();
         var previous = plan.get(pos);
         var tile = selectedPlacementButton.creator(previous);
