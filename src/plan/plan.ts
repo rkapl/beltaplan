@@ -111,6 +111,8 @@ namespace Plan{
             
             // connect sinks to sources
             this.forAllParticipants((from) => {
+                if(!from.participant.connectedTo)
+                    return;
                 from.participant.needs.forEach((item) => {
                     try{
                         this.bfsBus([from.participant.connectedTo], (bus, path) => {
