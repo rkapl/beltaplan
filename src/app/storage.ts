@@ -11,11 +11,28 @@ namespace App{
     var htmlPlanName: HTMLInputElement;
     
     var currentPlanId: number;
+    var defaultVersion = 'base-0.12';
     
     class OpenPlanDialog extends Ui.Dialog{
         constructor(){
             super(() => {});
             this.html.classList.add('open-dialog');
+            
+            var newPlanHeader = document.createElement('h2');
+            newPlanHeader.innerText = "New Plan";
+            this.html.appendChild(newPlanHeader);
+            
+            var newPlanButton = document.createElement('button');
+            newPlanButton.innerText = "Create";
+            newPlanButton.style.margin = 'auto';
+            newPlanButton.onclick = () => {
+                App.loadData(defaultVersion, (data) => {
+                    setPlan(new Plan.GamePlan(data));
+                    htmlPlanName.value = "New Plan";
+                    this.hide();
+                });
+            };
+            this.html.appendChild(newPlanButton);
             
             if(localStorageSupported){
                 var savedHeader = document.createElement('h2');
