@@ -301,9 +301,12 @@ namespace Plan{
                 amountTd.classList.add('amount');
                 var amount = 0;
                 connections.forEach((c) => amount += c.consumption);
-                if(beltSettings && item.type != 'fluid')
+                if(beltSettings && item.type != 'fluid'){
                     amount /= beltSettings.speed * 60;
-                amountTd.textContent = amount.toFixed(2);
+                    amountTd.textContent = amount.toFixed(2);
+                }else{
+                    amountTd.textContent = amount.toFixed(1);
+                }
                 tr.appendChild(amountTd);
                 
                 var unitTd = document.createElement('td');
