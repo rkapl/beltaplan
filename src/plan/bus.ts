@@ -9,7 +9,7 @@ namespace Plan{
         NO, IN, OUT
     };
     
-    var LOAD_FACTOR_REORDER_TRESHOLD = 0.4;
+    var LOAD_FACTOR_REORDER_TRESHOLD = 0.5;
     var MIN_GRID_SIZE = 3;
     
     export class Bus extends TileBase{
@@ -179,19 +179,23 @@ namespace Plan{
                     used++;
             return used / array.length; 
         }
-        // called by update_bus after the bus is computed (called in BFS order)
+        // called by update_bus after the bus is computed
+        // to get best results, call in bfs-like order
         updateIcons(){
             this.itemIcons = new Array();
-            // try to maintain ordering of our inputs
+            // select some input whose ordering we will try to maintain
+            // we chose the one with most icons
             var someInput:Bus = null;
-            this.inputs.forEach((input) => someInput = input);
-            if(someInput)
-                this.itemIcons = new Array(someInput.itemIcons.length);
+            this.inputs.forEach((input) => {
+                if(!someInput || input.itemIcons.length >= someInput.itemIcons.length)
+                    someInput = input;
+            });
             
             var added = new Set();
             // we try to maintain positions on the bus, so in the first iteration we position
             // items that are already on our input bus
             if(someInput){
+                this.itemIcons = new Array(someInput.itemIcons.length);
                 for(var i = 0; i<someInput.itemIcons.length; i++){
                     if(!someInput.itemIcons[i])
                         continue;
@@ -217,13 +221,14 @@ namespace Plan{
                 else
                     this.itemIcons[lastInsertPos] = this.imageForItem(item);
             });
+            
             // if we did not manage to keep the load factor, compress
             if(this.loadFactor(this.itemIcons) < LOAD_FACTOR_REORDER_TRESHOLD 
                && this.itemIcons.length > MIN_GRID_SIZE*MIN_GRID_SIZE){
                 var reorderedIcons = [];
                 for(var i = 0; i<this.itemIcons.length; i++){
-                    //if(this.itemIcons[i])
-                    //    reorderedIcons.push(this.itemIcons[i]);
+                    if(this.itemIcons[i])
+                        reorderedIcons.push(this.itemIcons[i]);
                 }
                 this.itemIcons = reorderedIcons;
             }

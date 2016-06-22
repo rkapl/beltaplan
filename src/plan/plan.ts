@@ -16,6 +16,8 @@ namespace Plan{
         to: BusParticipant;
         item: GameData.Item;
     }
+    // exception used to stop BFS search
+    class Connected{}
     export class GamePlan{
         public viewport: Ui.Viewport;
         public listeners: Set<GamePlanListener> = new Set();
@@ -62,6 +64,7 @@ namespace Plan{
             var queue = [];
             for(var i = 0; i<roots.length; i++){
                 queue.push([roots[i]]);
+                roots[i].visited = true;
             }
             
             while(queue.length > 0){
@@ -90,15 +93,16 @@ namespace Plan{
             c.item =  item;
             
             this.addToBag(from.participant.fromConnections, item, c);
-            this.addToBag(from.participant.toConnections, item, c);
             for(var i = 0; i<path.length; i++){
                 this.addToBag(path[i].items, item, c);
             }
+            from.participant.toConnections.set(item, c);
         }
         updateBus(){
             // clear 
             this.forAllBusses((t: Bus) => {
                 t.items.clear();
+                t.itemIcons = [];
             });
             this.forAllParticipants((b) => {
                 b.participant.fromConnections.clear();
@@ -108,20 +112,26 @@ namespace Plan{
             // connect sinks to sources
             this.forAllParticipants((from) => {
                 from.participant.needs.forEach((item) => {
-                    this.bfsBus([from.participant.connectedTo], (bus, path) => {
-                        bus.directParticipants.forEach((to) => {
-                            if(to.participant.provides.has(item)){
-                                this.addConnection(item, from, to, path);
-                            } 
+                    try{
+                        this.bfsBus([from.participant.connectedTo], (bus, path) => {
+                            bus.directParticipants.forEach((to) => {
+                                if(to.participant.provides.has(item)){
+                                    this.addConnection(item, from, to, path);
+                                    throw new Connected();
+                                } 
+                            });
+                            
+                            if(bus.blocked.has(item))
+                                return new Set();
+                            return bus.inputs;
                         });
-                        
-                        if(bus.blocked.has(item))
-                            return new Set();
-                        return bus.inputs;
-                    });
+                    }catch(e){
+                        if(!(e instanceof Connected))
+                            throw e;
+                    }
                 });
             });
-           
+            
             // update the icons (needs to be done in BFS order from the bus starts)
             var busStarts = [];
             this.forAllBusses((bus) => {
@@ -135,8 +145,14 @@ namespace Plan{
                 }
             );
             
-            // and show the results
-            this.forAllBusses((b) => b.updateIcons());
+            // if the bus starts with a loop, we might loose some updateIcons,
+            // so be sure
+            this.forAllBusses((b) => {
+                if(!b.visited)
+                    b.updateIcons()
+            });
+            
+            // and show the resultsa
             if(this.viewport)
                 this.forAllTiles((t) => t.updateHtml());
         }

@@ -101,7 +101,6 @@ namespace App{
             }else{
                 loadData('base-0.12', (data) => {
                     create('Example Plan', createDefaultPlan(data), callback);
-                    callback();
                 });
             }
         } 
@@ -122,9 +121,6 @@ namespace App{
         setPlan(plan);
     }
     function loadById(planId: number, cb: ReadyCallback ){
-        
-    }
-    function fromText(text: string){
         
     }
     function save(cb: ReadyCallback){

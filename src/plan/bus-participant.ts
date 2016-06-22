@@ -9,6 +9,6 @@ namespace Plan{
         blocks: Set<GameData.Item> = new Set();
         
         fromConnections: Map<GameData.Item, Set<Connection>> = new Map<GameData.Item, Set<Connection>>();
-        toConnections: Map<GameData.Item, Set<Connection>> = new Map<GameData.Item, Set<Connection>>();
+        toConnections: Map<GameData.Item, Connection> = new Map<GameData.Item, Connection>();
     }
 }
