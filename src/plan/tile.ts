@@ -94,7 +94,7 @@ namespace Plan{
         
         showInfoHeader(){
             var title = document.createElement('h3');
-            title.innerText = this.constructor['name'];
+            title.textContent = this.constructor['name'];
             this.infoBox.appendChild(title);
         }
         drawInCenter(ctx: CanvasRenderingContext2D, img: HTMLImageElement, o: Util.Orientation){
@@ -109,7 +109,7 @@ namespace Plan{
             row.classList.add('key-value-pair');
             
             var label = document.createElement('label');
-            label.innerText = text;
+            label.textContent = text;
             row.appendChild(label);
             
             var input = document.createElement('input');
@@ -122,7 +122,7 @@ namespace Plan{
             row.appendChild(input);
             
             var unitLabel = document.createElement('span');
-            unitLabel.innerText = unit;
+            unitLabel.textContent = unit;
             row.appendChild(unitLabel);
             
             return row;
@@ -132,15 +132,15 @@ namespace Plan{
             div.classList.add('key-value-pair');
             
             var label = document.createElement('label');
-            label.innerText = text;
+            label.textContent = text;
             div.appendChild(label);
             
             var valueSpan = document.createElement('span');
-            valueSpan.innerText = value;
+            valueSpan.textContent = value;
             div.appendChild(valueSpan);
             
             var unitSpan = document.createElement('span');
-            unitSpan.innerText = unit;
+            unitSpan.textContent = unit;
             div.appendChild(unitSpan);
             
             return div;

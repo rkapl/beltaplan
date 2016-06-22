@@ -77,7 +77,7 @@ namespace Plan{
             var contents = this.showInfoStandardButtons();
             
             var title = document.createElement('h3');
-            title.innerText = this.type.name;
+            title.textContent = this.type.name;
             contents.appendChild(title);
             
             var recipe = document.createElement('div');
@@ -109,7 +109,7 @@ namespace Plan{
             }
             
             var recipeButton = document.createElement('button');
-            recipeButton.innerText = 'Change recipe';
+            recipeButton.textContent = 'Change recipe';
             recipeButton.onclick =  () => {
                 var d = new Ui.SelectRecipe(this.plan,
                     (r: GameData.Recipe) => GameData.canProducerProduceRecipe(this.type, r), 
@@ -122,7 +122,7 @@ namespace Plan{
             contents.appendChild(recipeButton);
             
             if(this.recipe.results.length == 1){
-                contents.appendChild(this.createNumberInputField('Over-production', 'consumption', 'i/m'));
+                contents.appendChild(this.createNumberInputField('Over-production:', 'consumption', 'i/m'));
             }
             
             if(this.cpm != undefined){

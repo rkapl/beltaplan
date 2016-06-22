@@ -41,7 +41,7 @@ namespace Plan{
             contents.appendChild(header);
             
             var itemButton = document.createElement('button');
-            itemButton.innerText = 'Change produced item';
+            itemButton.textContent = 'Change produced item';
             itemButton.onclick =  () => {
                 var d = new Ui.SelectItem(this.plan, ()=>{
                     this.setItem(d.selected);

@@ -303,7 +303,7 @@ namespace Plan{
                 connections.forEach((c) => amount += c.consumption);
                 if(beltSettings && item.type != 'fluid')
                     amount /= beltSettings.speed * 60;
-                amountTd.innerText = amount.toFixed(2);
+                amountTd.textContent = amount.toFixed(2);
                 tr.appendChild(amountTd);
                 
                 var unitTd = document.createElement('td');
@@ -313,7 +313,7 @@ namespace Plan{
                     unitTd.appendChild(beltImg);
                 }else{
                     unitTd.classList.add('unit');
-                    unitTd.innerText = 'i/m';
+                    unitTd.textContent = 'i/m';
                 }
                 tr.appendChild(unitTd);
                               
@@ -324,7 +324,7 @@ namespace Plan{
                 tr.appendChild(iconTd);
                 
                 var nameTd = document.createElement('td');
-                nameTd.innerText = item.name;
+                nameTd.textContent = item.name;
                 tr.appendChild(nameTd);
                 
                 table.appendChild(tr);

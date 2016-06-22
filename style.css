@@ -155,6 +155,7 @@ button.fill{
     right: 20px;
     bottom: 20px;
     width: 250px;
+    font-size: 11pt;
 }
 #infobox .contents > div{
     margin-top: 7px;

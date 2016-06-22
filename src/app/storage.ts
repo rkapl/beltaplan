@@ -19,11 +19,11 @@ namespace App{
             this.html.classList.add('open-dialog');
             
             var newPlanHeader = document.createElement('h2');
-            newPlanHeader.innerText = "New Plan";
+            newPlanHeader.textContent = "New Plan";
             this.html.appendChild(newPlanHeader);
             
             var newPlanButton = document.createElement('button');
-            newPlanButton.innerText = "Create";
+            newPlanButton.textContent = "Create";
             newPlanButton.style.margin = 'auto';
             newPlanButton.onclick = () => {
                 App.loadData(defaultVersion, (data) => {
@@ -36,12 +36,12 @@ namespace App{
             
             if(localStorageSupported){
                 var savedHeader = document.createElement('h2');
-                savedHeader.innerText = "Saved plans";
+                savedHeader.textContent = "Saved plans";
                 this.html.appendChild(savedHeader);
             }
             
             var fromTextHeader = document.createElement('h2');
-            fromTextHeader.innerText = "Import/Export";
+            fromTextHeader.textContent = "Import/Export";
             this.html.appendChild(fromTextHeader);
             
             var textArea = document.createElement('textarea');
@@ -51,7 +51,7 @@ namespace App{
             serializeBar.classList.add('dialog-buttons');
             
             var buttonExport = document.createElement('button');
-            buttonExport.innerText = "Export";
+            buttonExport.textContent = "Export";
             buttonExport.addEventListener('click', () => {
                var json = {
                    'saveData': 'beltaplan',
@@ -63,7 +63,7 @@ namespace App{
             serializeBar.appendChild(buttonExport);
             
             var buttonImport = document.createElement('button');
-            buttonImport.innerText = "Import";
+            buttonImport.textContent = "Import";
             buttonImport.addEventListener('click', () => {
                 loadFromJSON(textArea.value, () => {
                     this.hide();
