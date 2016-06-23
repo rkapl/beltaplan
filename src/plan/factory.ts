@@ -183,7 +183,7 @@ namespace Plan{
                 
                 var x =  - this.shift.x + Ui.Sizes.TILE_SIZE/2;
                 var y =  - this.shift.y + Ui.Sizes.TILE_SIZE - 12
-                var text = this.consumption.toFixed(2) + " i/s";
+                var text = this.consumption.toFixed(2) + " i/m";
                 ctx.strokeText(text, x, y);
                 ctx.fillText(text, x, y);
             }           

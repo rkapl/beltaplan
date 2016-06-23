@@ -45,7 +45,7 @@ namespace Plan{
             ctx.textAlign = "center";
             ctx.textBaseline = "center";
             ctx.fillStyle = 'black';   
-            ctx.fillText(this.consumption + " i/s", Ui.Sizes.TILE_SIZE/2 , Ui.Sizes.TILE_SIZE - 16);
+            ctx.fillText(this.consumption + " i/m", Ui.Sizes.TILE_SIZE/2 , Ui.Sizes.TILE_SIZE - 16);
         }
         showInfo(box: HTMLElement){
             super.showInfo(box);
