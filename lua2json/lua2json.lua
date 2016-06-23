@@ -261,8 +261,14 @@ end
 
 collect_items(all_producers, "assembling-machine")
 collect_items(all_producers, "furnace")
+collect_items(all_producers, "rocket-silo")
+
 for name, producer in pairs(all_producers) do
     producer.icon = store_path(mods, producer.icon)
+    if producer.base_day_sprite then
+        -- special handling for rocket silo
+        producer.animation = producer.base_day_sprite
+    end
     -- print(serpent.block(producer))
     if producer.animation.filename then
         producer.animation.filename = store_path(mods, producer.animation.filename)

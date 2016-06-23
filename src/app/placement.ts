@@ -30,7 +30,8 @@ namespace App{
             plan.data.recipe['iron-gear-wheel'],
             plan.data.recipe['basic-oil-processing'],
             plan.data.recipe['plastic-bar'],
-            plan.data.recipe['iron-plate']
+            plan.data.recipe['iron-plate'],
+            plan.data.recipe['rocket-part'],
        ];
         placementDefaultItem = plan.data.item['iron-gear-wheel'];
 
