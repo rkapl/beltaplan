@@ -1,4 +1,8 @@
 /// <reference path="../ui/dialog.ts" />
+
+var factorioDefaultVersion: string;
+var factorioVersions: string[];
+
 namespace App{
     export interface ReadyCallback{
         ():void;
@@ -11,7 +15,6 @@ namespace App{
     var htmlPlanName: HTMLInputElement;
     
     var currentPlanId: number;
-    var defaultVersion = 'base-0.12';
     
     class OpenPlanDialog extends Ui.Dialog{
         constructor(){
@@ -22,17 +25,30 @@ namespace App{
             newPlanHeader.textContent = "New Plan";
             this.html.appendChild(newPlanHeader);
             
+            var newPlanBar = document.createElement('dialog-buttons');
+            newPlanBar.classList.add('dialog-buttons');
+            
+            var planVersionCombo = document.createElement('select');
+            for(var i = 0; i < factorioVersions.length; i++){
+                var value = document.createElement('option');
+                value.textContent = factorioVersions[i];
+                value.value = factorioVersions[i];
+                planVersionCombo.appendChild(value);
+            } 
+            newPlanBar.appendChild(planVersionCombo);
+            
             var newPlanButton = document.createElement('button');
             newPlanButton.textContent = "Create";
-            newPlanButton.style.margin = 'auto';
+            newPlanButton.style.display = 'inline-block';
             newPlanButton.onclick = () => {
-                App.loadData(defaultVersion, (data) => {
+                App.loadData(planVersionCombo.value, (data) => {
                     setPlan(new Plan.GamePlan(data));
                     htmlPlanName.value = "New Plan";
                     this.hide();
                 });
             };
-            this.html.appendChild(newPlanButton);
+            newPlanBar.appendChild(newPlanButton);
+            this.html.appendChild(newPlanBar);
             
             if(localStorageSupported){
                 var savedHeader = document.createElement('h2');
