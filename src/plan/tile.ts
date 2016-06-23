@@ -117,7 +117,7 @@ namespace Plan{
             input.type = 'number';
             input.min = '0';
             input.onchange = () => {
-                this[binding] = input.value;
+                this[binding] = parseFloat(input.value);
             };
             row.appendChild(input);
             
