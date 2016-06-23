@@ -116,8 +116,11 @@ namespace Plan{
             input.value = this[binding];
             input.type = 'number';
             input.min = '0';
+            input.step = 'any';
             input.onchange = () => {
                 this[binding] = parseFloat(input.value);
+                if(this.html)
+                    this.updateHtml();
             };
             row.appendChild(input);
             

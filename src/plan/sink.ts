@@ -39,7 +39,13 @@ namespace Plan{
         }
         overlay(ctx: CanvasRenderingContext2D){
             if(this.isItemMissing())
-                this.drawInCenter(ctx, this.viewport.resourceAlert, 0);   
+                this.drawInCenter(ctx, this.viewport.resourceAlert, 0);
+                
+            ctx.font = "bold 15px Lato";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "center";
+            ctx.fillStyle = 'black';   
+            ctx.fillText(this.consumption + " i/s", Ui.Sizes.TILE_SIZE/2 , Ui.Sizes.TILE_SIZE - 16);
         }
         showInfo(box: HTMLElement){
             super.showInfo(box);

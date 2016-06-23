@@ -28,9 +28,7 @@ namespace Plan{
             json.type = 'Source';
         }
         overlay(ctx: CanvasRenderingContext2D){
-            ctx.font = "14px sans-serif";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "center";
+            
         }
         showInfo(box: HTMLElement){
             super.showInfo(box);

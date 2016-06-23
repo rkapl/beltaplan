@@ -171,7 +171,22 @@ namespace Plan{
             this.drawInCenter(ctx, this.recipeIcon, 0);
             
             if(this.isAnyMissing())
-                this.drawInCenter(ctx, this.viewport.resourceAlert, 0);           
+                this.drawInCenter(ctx, this.viewport.resourceAlert, 0);
+                
+            if(this.recipe.results.length == 1 && this.consumption > 0){
+                ctx.font = "bold 15px Lato";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "center";
+                ctx.fillStyle = 'white';
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 3;
+                
+                var x =  - this.shift.x + Ui.Sizes.TILE_SIZE/2;
+                var y =  - this.shift.y + Ui.Sizes.TILE_SIZE - 12
+                var text = this.consumption.toFixed(2) + " i/s";
+                ctx.strokeText(text, x, y);
+                ctx.fillText(text, x, y);
+            }           
         }
     }
 }
