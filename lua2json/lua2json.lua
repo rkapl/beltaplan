@@ -184,7 +184,8 @@ local filtered = {
 local wanted_items = {
     ['express-transport-belt'] = true, 
     ['fast-transport-belt'] = true,
-    ['basic-transport-belt'] = true
+    ['basic-transport-belt'] = false,
+    ['transport-belt'] = false
 }
 
 for name,recipe in pairs(data['recipe']) do
@@ -226,6 +227,10 @@ end
 local all_items = {}
 local all_producers = {}
 local function collect_items(all_items, items_name)
+    -- ignore non-existant categories
+    if not data[items_name] then
+       return
+    end
     for k,v in pairs(data[items_name]) do
         all_items[k] = v
     end
@@ -244,12 +249,17 @@ collect_items(all_items, 'fluid')
 collect_items(all_items, 'tool')
 collect_items(all_items, 'repair-tool')
 collect_items(all_items, 'blueprint')
+collect_items(all_items, 'blueprint-book')
+collect_items(all_items, 'rail-planner')
 
 -- copy over items referenced by recipe, including their icons
 for item, b in pairs(wanted_items) do
     local itemdata = all_items[item]
     if itemdata == nil then
-        print("Can not find referenced item: "  .. item)
+        if b then
+            -- if the filter is 'false', it is optional
+            print("Can not find referenced item: "  .. item)
+        end
     else
         if itemdata.icon then
             itemdata.icon = store_path(mods, itemdata.icon)
