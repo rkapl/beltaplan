@@ -46,15 +46,14 @@ namespace App{
            if(selectedTile)
                 selectedTile.updateInfo(); 
         });
-              
         
         window.addEventListener('keypress', (ev) => {
-            if(ev.charCode == 114 && currentMode == Mode.NORMAL && selectedTile){
+            if(ev.charCode == 114 && currentMode == Mode.NORMAL && ev.target == document.body && selectedTile){
                 selectedTile.rotate();
             }
         });
         window.addEventListener('keydown', (ev) => {
-            if(ev.keyCode == 46 && currentMode == Mode.NORMAL && selectedTile){
+            if(ev.keyCode == 46 && currentMode == Mode.NORMAL && ev.target == document.body && selectedTile){
                 plan.set(selectedTile.position, null);
             }
         });
