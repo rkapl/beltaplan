@@ -27,14 +27,16 @@ namespace App{
             
             var newPlanBar = document.createElement('dialog-buttons');
             newPlanBar.classList.add('dialog-buttons');
-            
             var planVersionCombo = document.createElement('select');
             for(var i = 0; i < factorioVersions.length; i++){
                 var value = document.createElement('option');
                 value.textContent = factorioVersions[i];
                 value.value = factorioVersions[i];
-                planVersionCombo.appendChild(value);
-            } 
+                
+                console.log(factorioDefaultVersion);
+                   planVersionCombo.appendChild(value);
+            }
+            planVersionCombo.value = factorioDefaultVersion;
             newPlanBar.appendChild(planVersionCombo);
             
             var newPlanButton = document.createElement('button');
@@ -48,6 +50,7 @@ namespace App{
                 });
             };
             newPlanBar.appendChild(newPlanButton);
+            
             this.html.appendChild(newPlanBar);
             
             if(localStorageSupported){
