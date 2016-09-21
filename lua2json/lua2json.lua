@@ -2,10 +2,15 @@ local json = require('dkjson')
 local lfs = require('lfs')
 -- its required by factorio, better check it is present
 local serpent = require('serpent')
-
 local utils = require('utils')
 
+-- arguments
+local data_dirs = {}
+local out_dir = nil
+local dump_all = false
+
 local function syntax_error(msg)
+    io.stderr:write('lua lua2json.lua [--dump-all] out-dir data-dirs ...\n')
     io.stderr:write(msg)
     os.exit(1)
 end
@@ -33,7 +38,7 @@ local function store_path(mods, path)
     for modname, mod in pairs(mods) do
         path = string.gsub(path, '__' .. modname .. '__', mod.dir)
     end
-    utils.copy_file(path, utils.joinpath('data', cleanpath))
+    utils.copy_file(path, utils.joinpath(out_dir, cleanpath))
     print(cleanpath)
     return cleanpath
 end
@@ -63,7 +68,10 @@ filter_producer = {
     selection_box = true,
     drawing_box = true,
     tile_width = true,
-    tile_height = true
+    tile_height = true,
+    energy_usage = true,
+    allowed_effects = true,
+    module_specification = true
 }
 
 filter_recipe = {
@@ -80,24 +88,31 @@ filter_recipe = {
 filter_item = {
     name = true,
     icon = true,
-    type = true
+    type = true,
+    effect = true,
+    tier = true,
+    limitation = true
 }
 
 
 -- parse arguments
-
-local data_dirs = {}
-local dump_all = false
 local argindex = 1
 while argindex <= #arg do
     local arg = arg[argindex]
     if arg == '--dump-all' then
         dump_all = true
-    else
+    elseif out_dir == nil then
+        out_dir = arg
+    else 
         table.insert(data_dirs, arg)
     end
     argindex = argindex + 1
 end
+
+if out_dir == nil then
+    syntax_error('You have to specify output directory')
+end
+
 if #data_dirs == 0 then
     syntax_error('You have to specify factorio data directory(ies)\n'
                 .. 'For Steam/Linux, try looking into ~/.steam/steam/steamapps/common/Factorio/data/\n')
@@ -160,12 +175,12 @@ run_all('data-final-fixes', mods)
 data.clear = nil
 data.extend = nil
 
-lfs.mkdir('data')
+lfs.mkdir(out_dir)
 
 data = data.raw
 
 if dump_all then
-    jsondata = io.open('data/all.json', 'w')
+    jsondata = io.open(utils.joinpath(out_dir, 'all.json'), 'w')
     jsondata:write(json.encode(data, {indent=true}))
     jsondata:close()
 end
@@ -251,6 +266,7 @@ collect_items(all_items, 'repair-tool')
 collect_items(all_items, 'blueprint')
 collect_items(all_items, 'blueprint-book')
 collect_items(all_items, 'rail-planner')
+collect_items(all_items, 'item-with-entity-data')
 
 -- copy over items referenced by recipe, including their icons
 for item, b in pairs(wanted_items) do
@@ -292,7 +308,7 @@ for name, producer in pairs(all_producers) do
 end
 filtered.producers = all_producers
 
-jsondata = io.open('data/data.json', 'w')
+jsondata = io.open(utils.joinpath(out_dir, 'data.json'), 'w')
 jsondata:write(json.encode(filtered, {indent=true}))
 jsondata:close()
 
