@@ -24,7 +24,7 @@ namespace Ui{
                     // fast-accept on enter
                     this.filtered[0].click();
                 }else{
-                    this.filter()
+                    this.filter();
                 }
             });
             filter.addEventListener('change', () => this.filter());

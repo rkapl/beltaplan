@@ -32,6 +32,24 @@ namespace GameData{
         name: string;
         type: string;
     }
+    
+    export interface Module extends Item{
+        limitation: string[];
+        effect: ModuleEffect;
+        tier: number;
+    }
+    
+    export interface ModuleEffect{
+        productivity: SingleModuleEffect;
+        pollution: SingleModuleEffect;
+        consumption: SingleModuleEffect;
+        speed: SingleModuleEffect;
+    }
+    
+    export interface SingleModuleEffect{
+        bonus: number;
+    }
+    
     export interface Producer{
         icon: string;
         type: string;   
@@ -50,6 +68,7 @@ namespace GameData{
         drawing_box: Box
         tile_width: number
         tile_height: number
+        allowed_effects: string[];
     }
     export interface AnimationBase{
         jsanimation: Ui.Animation;
@@ -108,6 +127,35 @@ namespace GameData{
         else
             return Math.ceil(producer.collision_box[1][1] - producer.collision_box[0][1]);
     }
+      
+    export function canProducerUseModule(producer: Producer, recipe: Recipe, mod: Module, in_beacon: boolean): boolean{
+        var allowed_effects: string[];
+        if(in_beacon){
+            allowed_effects = ['pollution', 'consumption', 'speed']
+        }else if(producer.allowed_effects){
+            allowed_effects = producer.allowed_effects;
+        }else{
+            allowed_effects = ['pollution', 'consumption', 'speed', 'productivity'];
+        }
+        
+        if(mod.effect.consumption && allowed_effects.indexOf('consumption') ==  -1)
+            return false;
+            
+        if(mod.effect.pollution && allowed_effects.indexOf('pollution') ==  -1)
+            return false;
+            
+        if(mod.effect.speed && allowed_effects.indexOf('speed') ==  -1)
+            return false;
+            
+        if(mod.effect.productivity && allowed_effects.indexOf('productivity') ==  -1)
+            return false;
+            
+        if(mod.limitation && mod.limitation.indexOf(recipe.name) == -1)
+            return false
+        
+        return true;    
+    }
+    
     export function canProducerProduceRecipe(producer: Producer, r: Recipe): boolean{
         var category = r.category;
         if(!category)

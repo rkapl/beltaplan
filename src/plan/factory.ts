@@ -2,12 +2,76 @@
 
 namespace Plan{
    
-    export class Factory extends TileBase implements BusParticipant{
+   export class FactoryModules{
+       constructor(public producer: GameData.Producer){
+           if(producer.module_specification)
+               this.direct = new Array(producer.module_specification.module_slots);
+           else
+               this.direct = [];
+           this.beacon = []; 
+       }
+       public anyDirectSet(): boolean{
+           for(var d of this.direct){
+               if(d)
+                    return true;
+           }
+           return false;
+       }
+       public serialize(json){
+           if(this.anyDirectSet())
+                json.direct = this.direct.map((m) => m && m.name);
+           if(this.beacon.length > 0)
+                json.beacon = this.beacon.map((m) => m.name);
+       }
+       
+       public deserialize(json, data: GameData.Data){
+           if(json.direct)
+                this.direct = (<string[]>json.direct).map((s) => <GameData.Module>data.item[s]);
+           if(json.beacon)
+                this.beacon = (<string[]>json.beacon).map((s) => <GameData.Module>data.item[s]);
+       }
+       public collectEffects(): GameData.ModuleEffect{
+           var r = {
+               productivity: {bonus: 1},
+               speed: {bonus: 1},
+               consumption: {bonus: 1},
+               pollution: {bonus: 1},
+           };
+           function collectEffect(e: GameData.ModuleEffect, c: number){
+               if(e == null)
+                    return;
+               if(e.productivity)
+                    r.productivity.bonus += e.productivity.bonus * c;
+               if(e.speed)
+                    r.speed.bonus += e.speed.bonus * c;
+               if(e.consumption)
+                    r.consumption.bonus += e.consumption.bonus * c;
+               if(e.pollution)
+                    r.pollution.bonus += e.pollution.bonus * c;
+           }
+           for(var d of this.direct){
+               if(d != null)
+                    collectEffect(d.effect, 1);
+           }
+           for(var b of this.beacon){
+               if(b != null)
+                    collectEffect(b.effect, 0.5);
+           }
+           return r;
+       }
+       
+       public direct: GameData.Module[];
+       public beacon: GameData.Module[];
+   }
+   
+   export class Factory extends TileBase implements BusParticipant{
         private animation: Ui.Animation;
-        private recipe: GameData.Recipe;
+        recipe: GameData.Recipe;
         participant: BusParticipantData = new BusParticipantData();
         private recipeIcon: HTMLImageElement;
-        private type: GameData.Producer;
+        type: GameData.Producer;
+        modules: FactoryModules;
+        totalEffect: GameData.ModuleEffect;
         private consumption: number = 0;
         private cpm: number;
         
@@ -18,8 +82,8 @@ namespace Plan{
         }
         itemTransferFunction(){
             this.cpm = 0; // cycles per minute
-            for(var i = 0; i<this.recipe.results.length; i++){
-                var result = this.recipe.results[i];
+            // collect requirements and take the max cpm
+            for(var result of this.recipe.results){
                 var resultItem = this.plan.data.item[result.name];
                 var needed = this.participant.fromConnectionsConsumption(resultItem);
                 if(this.recipe.results.length == 1)
@@ -28,8 +92,10 @@ namespace Plan{
                 this.cpm = Math.max(this.cpm, needed/result.amount);
             }
             
-            for(var i = 0; i<this.recipe.ingredients.length; i++){
-                var ingredient = this.recipe.ingredients[i];
+            this.totalEffect = this.modules.collectEffects();
+            this.cpm /= this.totalEffect.productivity.bonus;
+                        
+            for(var ingredient of this.recipe.ingredients){
                 var ingredientItem = this.plan.data.item[ingredient.name];
                 if(this.participant.toConnections.has(ingredientItem)){
                     var c = this.participant.toConnections.get(ingredientItem);
@@ -50,6 +116,7 @@ namespace Plan{
         }
         setType(type: GameData.Producer){
             this.type = type;
+            this.modules = new FactoryModules(type);
             this.setRecipe(this.plan.data.recipe['iron-gear-wheel'])
             this.animation = Ui.animationFromData(this.type.animation, this.plan, () => {
                 this.updateState();
@@ -60,6 +127,10 @@ namespace Plan{
             json.type = 'Factory';
             json.recipe = this.recipe.name;
             json.producer = this.type.name;
+            
+            if(this.modules)
+                this.modules.serialize(json);
+                
             if(this.recipe.results.length == 1)
                 json.consumption = this.consumption;
         }
@@ -67,6 +138,8 @@ namespace Plan{
             super.deserialize(json);
             this.setType(this.plan.data.producers[json.producer]);
             this.setRecipe(this.plan.data.recipe[json.recipe])
+            if(this.modules)
+                this.modules.deserialize(json, this.plan.data);
             this.consumption = json.consumption;
             if(this.consumption == undefined)
                 // JSON compatibility
@@ -96,7 +169,7 @@ namespace Plan{
                 recipe.appendChild(ingredient);
             }
             
-            recipe.appendChild(document.createTextNode(String.fromCharCode(0x25b6)));
+            recipe.appendChild(document.createTextNode(" " + String.fromCharCode(0x25b6) + " "));
             
             for(var provides of this.recipe.results){
                 
@@ -128,14 +201,18 @@ namespace Plan{
             if(this.cpm != undefined){
                 contents.appendChild(this.createPropertyDisplay('Production cycles:', this.cpm.toFixed(2), 'c/m'));
                 
-                var energy = this.recipe.energy_required;
-                if(!energy)
-                    energy = 0.5; 
+                var time = this.recipe.energy_required;
+                if(!time)
+                    time = 0.5; 
                     
-                var cycle_time = energy / this.type.crafting_speed / 60; 
+                var speed =  this.type.crafting_speed * this.totalEffect.speed.bonus;
+                var cycle_time = time / speed / 60 ; 
                 var producers = this.cpm * cycle_time;
                 contents.appendChild(this.createPropertyDisplay('Producers needed:', producers.toFixed(2), ''));
             }
+            
+            var modeditor = new Ui.ModuleEditor(this);
+            contents.appendChild(modeditor.html);
         }
         isBusParticipant(): boolean{
             return true;

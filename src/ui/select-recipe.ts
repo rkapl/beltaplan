@@ -22,6 +22,7 @@ namespace Ui{
         }
         return filtered;
     }
+    
     export class SelectRecipe extends Selector<GameData.Recipe>{        
         constructor(public plan: Plan.GamePlan, filter: RecipePredicate, cb: DialogCallback){
             super(cb, new RecipeAdapter(plan), filterWith(plan.data.recipe, filter));

@@ -155,7 +155,6 @@ button.fill{
 }
 
 
-
 #infobox{
     right: 20px;
     bottom: 20px;
@@ -184,7 +183,7 @@ button.fill{
 }
 #infobox .contents{
     overflow-y: auto;
-    height: 200px;
+    height: 240px;
 }
 #infobox .action-button{
     cursor: pointer;
@@ -235,6 +234,20 @@ button.fill{
     padding-right: 0.3em;
 }
 
+.module-list .slot, .module-list .add-slot{
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    margin: 1px;
+    margin-bottom: 0px;
+    background-color: gray;
+    vertical-align: baseline; 
+    cursor: pointer;
+}
+
+.module-list .add-slot{
+    background-color: transparent;
+}
 
 #dialog{
     display: none;
