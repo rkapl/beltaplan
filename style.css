@@ -1,7 +1,7 @@
 html{
     font-family: 'Lato', sans-serif;
 }
-body{
+body.game{
     overflow: hidden;
 }
 .hidden{
@@ -41,8 +41,12 @@ body{
 .toolbox li{
     display: block;
 }
-button, .toolbox li.split-button{
+.text-as-icon{
+    font-size: 25px !important;
+}
+button, .toolbox li.split-button, .button{
     display: block;
+    text-decoration: none;
     box-sizing: content-box;
     border: none;
     background-color: green;
@@ -65,18 +69,19 @@ button.fill{
     align-content: stretch;
     padding: 0px;
 }
-.toolbox li.split-button button{
+.toolbox li.split-button > *{
     background-color: transparent;
     margin: 0px;
 }
-.toolbox li.split-button button:first-child{
+.toolbox li.split-button > :first-child{
     flex-grow: 1;
     width: 20px;
 }
-.toolbox li.split-button button:last-child{
+.toolbox li.split-button > :last-child{
     padding: 1px;
     border-left: 1px solid white;
     padding-left: 10px;
+    padding-right: 10px;
 }
 .toolbox li.split-button img{
     width: 24px;

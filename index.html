@@ -9,11 +9,11 @@
         <script type="text/javascript" src="main.js">
         </script>
         <script type="text/javascript">
-            var factorioDefaultVersion = 'base-0.12';
+            var factorioDefaultVersion = 'base-0.13';
             var factorioVersions = ['base-0.12', 'base-0.13'];
         </script>
     </head>
-    <body>
+    <body class="game">
         <div id="splash">
             <div id="splash-text">
                 Loading ...
@@ -28,10 +28,11 @@
                 </button>
             </li>
             
-            <li>
+            <li class="split-button">
                 <button id="button-recalculate" class="fill">
                     Recalculate
                 </button>
+                <a href="help.html" class="button text-as-icon" target="_blank">?</a>
             </li>
             <br/>
             <li class="split-button" id="button-place-producer">
