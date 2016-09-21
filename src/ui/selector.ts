@@ -5,9 +5,11 @@ namespace Ui{
     
     export class Selector<T> extends Dialog{
         selected: T;
+        selectionEvent: MouseEvent;
         filterInput: HTMLInputElement;
         imageContainer: HTMLDivElement;
         filtered: HTMLImageElement[] = [];
+        bottomBar: HTMLDivElement;
         
         constructor(
             cb: DialogCallback, 
@@ -46,14 +48,18 @@ namespace Ui{
                 img.title = itemName;
                 img.src = adapter.imageUrl(item);
                 ((item) => {
-                    img.addEventListener('click', ()=>{
+                    img.addEventListener('click', (ev)=>{
                        this.selected = item;
+                       this.selectionEvent = ev;
                        this.closeOk();
                     });
                 })(item);
                 this.filtered.push(img);
                 div.appendChild(img);
             }
+            
+            this.bottomBar = document.createElement('div');
+            this.html.appendChild(this.bottomBar);
         }
         show(){
             super.show();

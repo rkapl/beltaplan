@@ -8,6 +8,7 @@ namespace Ui{
         // TODO: fix focus leaving this homemade dialog and other event weirdness
         html: HTMLElement;
         htmlDialog: HTMLElement;
+        private preventClosingFlag: boolean;
         constructor(public cb: DialogCallback){
             this.html = document.getElementById('dialog-contents');
             this.html.className = '';
@@ -62,17 +63,26 @@ namespace Ui{
                 ev.preventDefault();
             }
         }
+        preventClosing(){
+            this.preventClosingFlag = true;
+        }
         closeOk(){
-            this.hide();
+            this.preventClosingFlag = false;
             this.cb(this);
+            this.hide();
         }
         closeCancel(){
             this.hide();
         }
         hide(){
+            if(this.preventClosingFlag){
+                this.preventClosingFlag = false;
+                return;                
+            }
             hideCurrentDialog();
         }
     }
+    
     function hideCurrentDialog(){
         var html = this.html = document.getElementById('dialog-contents');
         while(html.hasChildNodes())

@@ -100,8 +100,11 @@ namespace Ui{
                 if(!(d.selected instanceof DeleteModule)){
                     this.addBeaconWithModule(<GameData.Module>d.selected);
                     this.producer.modules.beacon.push(<GameData.Module>d.selected);
+                    if(d.selectionEvent.ctrlKey)
+                        d.preventClosing();
                 }
             }, this.producer, true);
+            d.bottomBar.innerHTML = 'CTRL-click to add multiple modules';
             d.show();
         }
         addBeaconWithModule(mod: GameData.Module){
@@ -120,7 +123,19 @@ namespace Ui{
             this.beacon.push(newBeacon);
         }
         changeDirect(i: number){
-            var d = new SelectModule(() => this.setDirect(i, d.selected), this.producer, false);
+            var added = 0;
+            var d = new SelectModule(() => {
+                this.setDirect(i, d.selected);
+                if(d.selectionEvent.ctrlKey){
+                    i = (i+1) % this.direct.length;
+                    added++;
+                    if(added == this.direct.length - 1)
+                        d.bottomBar.innerHTML = "";
+                    if(added != this.direct.length)
+                        d.preventClosing();
+                }
+            }, this.producer, false);
+            d.bottomBar.innerHTML = 'CTRL-click to add multiple modules';
             d.show();
         }
         setBeacon(i: number, mod: GameData.Module){
@@ -136,8 +151,6 @@ namespace Ui{
                 this.direct[i].src = this.producer.plan.data.prefix + (<GameData.Module>mod).icon;
                 this.producer.modules.direct[i] = <GameData.Module> mod;
             }
-                
-            
         }
     }
 }
