@@ -12,6 +12,7 @@ namespace App{
     //var localStorageSupported = window.indexedDB && window.localStorage;
     var localStorageSupported = false;
     var localStorageDb: IDBDatabase;
+    var filesSupported = File && FileReader && FileList && Blob && URL.createObjectURL;
     var htmlPlanName: HTMLInputElement;
     
     var currentPlanId: number;
@@ -19,6 +20,12 @@ namespace App{
     class OpenPlanDialog extends Ui.Dialog{
         constructor(){
             super(() => {});
+            
+            if(!filesSupported){
+                alert('Your browser does not support saving and loading local files');
+                this.closeCancel();
+            }
+            
             this.html.classList.add('open-dialog');
             
             var newPlanHeader = document.createElement('h2');
@@ -62,10 +69,7 @@ namespace App{
             var fromTextHeader = document.createElement('h2');
             fromTextHeader.textContent = "Import/Export";
             this.html.appendChild(fromTextHeader);
-            
-            var textArea = document.createElement('textarea');
-            this.html.appendChild(textArea);
-            
+                       
             var serializeBar = document.createElement('div');
             serializeBar.classList.add('dialog-buttons');
             
@@ -77,16 +81,35 @@ namespace App{
                    'planName': htmlPlanName.value
                 };
                plan.savePlan(json);
-               textArea.value = JSON.stringify(json); 
+               var data = new Blob([JSON.stringify(json)],
+                    {type:'application/vnd.rkapl.factorio'});
+               var url = URL.createObjectURL(data);
+               
+               var link = document.createElement('a');
+               (<any>link).download = json.planName + '.bpl';
+               link.target='_blank';
+               link.href = url;
+               document.body.appendChild(link);
+               link.click();
+               window.setTimeout(() => URL.revokeObjectURL(url), 2000);
             });
             serializeBar.appendChild(buttonExport);
+            
+            var fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            serializeBar.appendChild(fileInput);
             
             var buttonImport = document.createElement('button');
             buttonImport.textContent = "Import";
             buttonImport.addEventListener('click', () => {
-                loadFromJSON(textArea.value, () => {
-                    this.hide();
-                });
+                if(fileInput.files.length != 1)
+                    alert('Select a file');
+                var file = fileInput.files[0];
+                var reader = new FileReader();
+                reader.onload = () => {
+                    loadFromJSON(reader.result, () => this.closeOk());
+                };
+                reader.readAsText(file)                
             });
             serializeBar.appendChild(buttonImport);
             
