@@ -85,6 +85,28 @@ namespace App{
                 }
                 
                 this.html.appendChild(fileList);
+                
+                var savesBar = document.createElement('div');
+                
+                if(files.length > 1 && currentDocument){
+                    var docToDelete = currentDocument;
+                    var buttonDelete = document.createElement('button');
+                    buttonDelete.textContent = "Delete currently open plan";
+                    buttonDelete.onclick = () => {
+                        files.splice(files.indexOf(currentDocument.name()), 1);
+                        
+                        var doc = storage.open(files[0], "open");
+                        doc.get((blob) => {
+                            loadPlanFromBlob(blob, () =>{
+                                docToDelete.remove(() => this.closeOk());
+                            }, () => doc);
+                        });
+                    }
+                    
+                    savesBar.appendChild(buttonDelete);
+                }
+                
+                this.html.appendChild(savesBar);
             }
             
             var fromTextHeader = document.createElement('h2');

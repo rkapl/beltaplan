@@ -186,6 +186,7 @@ namespace LibStorage.Local{
             };
             fireEvent(this._provider, 'removeStarted', op);
             this._location._storage.removeItem(this._fullName);            
+            delete this._location._listing[this._name];
             success();
             fireEvent(this._provider, 'removeFinished', op);
             return op;
@@ -203,8 +204,10 @@ namespace LibStorage.Local{
             fireEvent(this._provider, 'renameStarted', op);
             
             var data = this._location._storage.getItem(this._fullName);
+            delete this._location._listing[this._name];
             this._location._storage.removeItem(this._fullName); 
             this.setName(newName);
+            this._location._listing[this._name] = this;
             this._location._storage.setItem(this._fullName, data)
             
             success();

@@ -259,6 +259,14 @@ button.fill{
 .file-list li:hover{
     background-color: green;
 }
+#saving-notification{
+    background-color: green;
+    color: white;
+    padding: 5px;
+    position: absolute;
+    top:0px;
+    left:0px;
+}
 
 #dialog{
     display: none;
