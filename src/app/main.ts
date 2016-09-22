@@ -17,8 +17,8 @@ namespace App{
     }
     // listens to tile changes 
     export class TileSelectionListener implements Plan.GamePlanListener{
-        changed(x: number, y:number){
-            if(selectedTile){
+        changed(x: number, y:number, contentOnly: boolean){
+            if(selectedTile && !contentOnly){
                 if(selectedTile.position.x == x && selectedTile.position.y == y){
                     selectTile(null);
                 }

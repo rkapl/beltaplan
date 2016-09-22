@@ -121,6 +121,7 @@ namespace Plan{
             this.animation = Ui.animationFromData(this.type.animation, this.plan, () => {
                 this.updateState();
             });
+            this.notifyChange();
         }
         serialize(json){
             super.serialize(json);

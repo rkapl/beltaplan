@@ -3,7 +3,7 @@ namespace Plan{
     var knownTiles = ['Block', 'Bus', 'Factory', 'Sink', 'Source'];
          
     export interface GamePlanListener{
-        changed(x: number, y: number);
+        changed(x: number, y: number, contentOnly: boolean);
     }
     
     class LoopException{}
@@ -205,7 +205,10 @@ namespace Plan{
                     tile.createHtml(this.viewport);
             }
             this.updateIncludingNeigbhbours(x, y);
-            this.listeners.forEach((l) => l.changed(x, y));
+            this.notifyXY(x, y, false);
+        }
+        notifyXY(x:number, y:number, contentOnly: boolean){
+            this.listeners.forEach((l) => l.changed(x, y, contentOnly));
         }
         private updateIncludingNeigbhbours(x: number, y: number){
             this.tryUpdateTile(this.getXY(x, y));

@@ -121,6 +121,7 @@ namespace Plan{
                 this[binding] = parseFloat(input.value);
                 if(this.html)
                     this.updateHtml();
+                this.notifyChange();
             };
             row.appendChild(input);
             
@@ -177,7 +178,12 @@ namespace Plan{
             
             return contents;
         }
+        notifyChange(){
+            if(this.position)
+                this.plan.notifyXY(this.position.x, this.position.y, true);
+        }
         rotate(){
+            this.notifyChange();
             this.orientation = (this.orientation+1)%4;
             this.updateIncludingNeighbours();  
         }
@@ -233,6 +239,7 @@ namespace Plan{
                     this.updateHtml();
             };
             this.itemIcon.src = this.plan.data.prefix + this.item.icon;
+            this.notifyChange();
         }
         serialize(json){
             super.serialize(json);

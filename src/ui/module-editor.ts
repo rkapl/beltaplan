@@ -64,7 +64,7 @@ namespace Ui{
                     modslot.onclick = ((i) => () => this.changeDirect(i))(i);
                     this.direct.push(modslot);
                     directValue.appendChild(modslot)
-                    this.setDirect(i, mods.direct[i]);
+                    this.setDirect(i, mods.direct[i], false);
                 }
                    
                 directDiv.appendChild(directValue);
@@ -89,7 +89,7 @@ namespace Ui{
             beaconValue.appendChild(this.addBeaconImg);
             
             for(var mod of mods.beacon){
-                this.addBeaconWithModule(mod);
+                this.addBeaconWithModule(mod, false);
             }
             
             beaconDiv.appendChild(beaconValue);
@@ -98,7 +98,7 @@ namespace Ui{
         addBeacon(){
             var d = new SelectModule(() => {
                 if(!(d.selected instanceof DeleteModule)){
-                    this.addBeaconWithModule(<GameData.Module>d.selected);
+                    this.addBeaconWithModule(<GameData.Module>d.selected, true);
                     this.producer.modules.beacon.push(<GameData.Module>d.selected);
                     if(d.selectionEvent.ctrlKey)
                         d.preventClosing();
@@ -107,7 +107,7 @@ namespace Ui{
             d.bottomBar.innerHTML = 'CTRL-click to add multiple modules';
             d.show();
         }
-        addBeaconWithModule(mod: GameData.Module){
+        addBeaconWithModule(mod: GameData.Module, notify: boolean){
             // does not add to to factory, only to ui
             var i = this.beacon.length;
             
@@ -117,15 +117,18 @@ namespace Ui{
                 newBeacon.parentElement.removeChild(newBeacon);
                 this.beacon.splice(i, 1);
                 this.producer.modules.beacon.splice(i, 1);
+                this.producer.notifyChange();
             };
             newBeacon.src = this.producer.plan.data.prefix + mod.icon;
             this.addBeaconImg.parentElement.insertBefore(newBeacon, this.addBeaconImg);
             this.beacon.push(newBeacon);
+            if(notify)
+                this.producer.notifyChange();
         }
         changeDirect(i: number){
             var added = 0;
             var d = new SelectModule(() => {
-                this.setDirect(i, d.selected);
+                this.setDirect(i, d.selected, true);
                 if(d.selectionEvent.ctrlKey){
                     i = (i+1) % this.direct.length;
                     added++;
@@ -138,11 +141,7 @@ namespace Ui{
             d.bottomBar.innerHTML = 'CTRL-click to add multiple modules';
             d.show();
         }
-        setBeacon(i: number, mod: GameData.Module){
-            this.producer.modules.beacon[i] = mod;
-            this.beacon[i].src = this.producer.plan.data.prefix + mod.icon;
-        }
-        setDirect(i: number, mod: GameData.Module|DeleteModule){
+        setDirect(i: number, mod: GameData.Module|DeleteModule, notify: boolean){
             if(mod == null || mod instanceof DeleteModule){
                 this.direct[i].src = 'img/empty-slot.png';
                 this.producer.modules.direct[i] = null;
@@ -151,6 +150,8 @@ namespace Ui{
                 this.direct[i].src = this.producer.plan.data.prefix + (<GameData.Module>mod).icon;
                 this.producer.modules.direct[i] = <GameData.Module> mod;
             }
+            if(notify)
+                this.producer.notifyChange();
         }
     }
 }

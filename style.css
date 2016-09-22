@@ -249,6 +249,17 @@ button.fill{
     background-color: transparent;
 }
 
+.file-list{
+    display: block;
+}
+.file-list li{
+    display: block;
+    cursor: pointer;
+}
+.file-list li:hover{
+    background-color: green;
+}
+
 #dialog{
     display: none;
     position: absolute;
