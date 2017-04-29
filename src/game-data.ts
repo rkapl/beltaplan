@@ -27,10 +27,16 @@ namespace GameData{
         speed: number;
     }
     
+    export interface Icon{
+        icon: string;
+        tint: any;
+    }
+
     export interface Item{
         icon: string;
         name: string;
         type: string;
+        icons: Icon[];
     }
     
     export interface Module extends Item{
@@ -96,9 +102,12 @@ namespace GameData{
         icon: string;
         name: string;
         type: string;
+        category: string;
+        normal: RecipeVariant;
+    }
+    export interface RecipeVariant{
         results: RecipeResult[];
         ingredients: RecipeIngredient[];
-        category: string;
         energy_required: number;
     }
     export interface FactorioQuantity{
@@ -109,11 +118,24 @@ namespace GameData{
     export interface RecipeResult extends FactorioQuantity{}
     export interface RecipeIngredient extends FactorioQuantity{}
 
+    export function recipeVariant(r: Recipe): RecipeVariant{
+        if(r.normal)
+            return r.normal;
+        return <RecipeVariant><any> r;
+    }
+    export function iconForItem(i: Item){
+        // TODO: handle tint
+        if(i.icons)
+            return i.icons[0].icon;
+        return i.icon;
+    }
     export function iconForRecipe(r: Recipe, data:Data): string{
-        if(r.icon)
+        if(r.icon){
             return r.icon;
-        else
-            return data.item[r.results[0].name].icon;
+        }else{
+            var item = data.item[recipeVariant(r).results[0].name];
+            return iconForItem(item);
+        }
     }
     export function entityTileWidth(producer: Producer){
         if(producer.tile_width)

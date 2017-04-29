@@ -31,7 +31,6 @@ local function is_moddir(moddir)
     return lfs.attributes(infofile) ~= nil
     
 end
-
 -- rewrite a path and copy over the resource pointed by that path
 local function store_path(mods, path)
     cleanpath = string.gsub(path, '__', '')
@@ -82,12 +81,15 @@ filter_recipe = {
     results = true,
     ingredients = true,
     category = true,
-    energy_required = true
+    energy_required = true,
+    normal = true,
+    expensive = true
 }
 
 filter_item = {
     name = true,
     icon = true,
+    icons = true,
     type = true,
     effect = true,
     tier = true,
@@ -110,7 +112,7 @@ while argindex <= #arg do
 end
 
 if out_dir == nil then
-    syntax_error('You have to specify output directory')
+    syntax_error('You have to specify output directory\n')
 end
 
 if #data_dirs == 0 then
@@ -168,6 +170,34 @@ table.insert(package.searchers, searcher)
 print('Initializing Lua environment')
 require('dataloader')
 
+defines = {
+    difficulty = {
+        easy = 1,
+        normal = 2,
+        hard = 3
+    },
+    direction = {
+        north = 0,
+        northeast = 1,
+        east = 2,
+        southeast = 3,
+        south = 4,
+        southwest = 5,
+        west = 6,
+        northwest = 7
+    },
+    difficulty_settings = {
+        recipe_difficulty = {
+            normal = 2,
+            expensive = 3
+        },
+        technology_difficulty = {
+            normal = 2,
+            expensive = 3 
+        }
+    }
+}
+
 run_all('data', mods)
 run_all('data-updates', mods)
 run_all('data-final-fixes', mods)
@@ -209,17 +239,13 @@ for name,recipe in pairs(data['recipe']) do
     -- 1) recipe.result = 'item-name' + recipe.result_count (for results only)
     -- 2) recipe.ingredients/results = { {'item-name', 'qty'}}
     -- 3) recipe.ingredients/results = { {name = 'item', amount = 'qty', type = 'fluid/item'}}
-    -- All formats will be normalized into the third
-    
-    if recipe.result then
-        local amount = recipe.result_count
-        if not amount then
-            amount = 1
-        end
-        recipe.results = {{name = recipe.result, amount = amount, type = 'item'}}
-    end
-    
-    local function normalize_and_collect(items)
+    -- All formats will be normalized into the third (by changing the recipe)
+    -- Also the location of the results or ingredients might we under difficulty level table
+
+    -- print(serpent.block(recipe))    
+
+    -- further normalize the format and collect the items used we need to to copy to the outfile
+    local function normalize2_and_collect(items)
         for i, item in ipairs(items) do
             if not item['name'] then
                 items[i] = {name = item[1], amount = item[2], type = 'item'}
@@ -228,8 +254,25 @@ for name,recipe in pairs(data['recipe']) do
             wanted_items[items[i]['name']] = true
         end
     end
-    normalize_and_collect(recipe['ingredients'])
-    normalize_and_collect(recipe['results'])
+
+    local function normalize1(r)
+        if r.result then
+            local amount = r.amount
+            if not amount then
+                amount = 1
+            end
+            r.results = {{name = r.result, amount = amount, type = 'item'}}
+        end
+        normalize2_and_collect(r.ingredients)
+        normalize2_and_collect(r.results)
+    end
+
+    if recipe.normal then
+        normalize1(recipe.normal)
+        normalize1(recipe.expensive)
+    else
+        normalize1(recipe)
+    end
     
     if recipe.icon then
         recipe.icon = store_path(mods, recipe.icon)
@@ -277,9 +320,20 @@ for item, b in pairs(wanted_items) do
             print("Can not find referenced item: "  .. item)
         end
     else
-        if itemdata.icon then
-            itemdata.icon = store_path(mods, itemdata.icon)
+        local function store_icon(o)
+            o.icon = store_path(mods, o.icon)
         end
+
+        if itemdata.icon then
+            store_icon(itemdata)
+        end
+
+        if itemdata.icons then
+            for i, icon in ipairs(itemdata.icons) do
+                store_icon(icon)
+            end
+        end
+
         filter_table(itemdata, filter_item)
         filtered.item[item] = itemdata
     end
@@ -295,15 +349,39 @@ for name, producer in pairs(all_producers) do
         -- special handling for rocket silo
         producer.animation = producer.base_day_sprite
     end
+    -- print('------------------------------------------')
     -- print(serpent.block(producer))
-    if producer.animation.filename then
-        producer.animation.filename = store_path(mods, producer.animation.filename)
-    else
-        producer.animation.north.filename = store_path(mods, producer.animation.north.filename)
-        producer.animation.south.filename = store_path(mods, producer.animation.south.filename)
-        producer.animation.west.filename = store_path(mods, producer.animation.west.filename)
-        producer.animation.east.filename = store_path(mods, producer.animation.east.filename)
+
+    local function store_anim(a)
+        a.filename = store_path(mods, a.filename)
     end
+
+    local function unlayer(a)
+        if a.layers then
+            return a.layers[1]
+        end
+        return a    
+    end
+
+    -- TODO: use better layer selection than choseing the first one
+    producer.animation = unlayer(producer.animation)
+    local a = producer.animation
+    if a.filename then
+        store_anim(a)
+    else
+        a.north = unlayer(a.north)
+        store_anim(a.north)
+
+        a.south = unlayer(a.south)
+        store_anim(a.south)
+
+        a.west = unlayer(a.west)
+        store_anim(a.west)
+
+        a.east = unlayer(a.east)
+        store_anim(a.east)
+    end
+
     filter_table(producer, filter_producer)
 end
 filtered.producers = all_producers
