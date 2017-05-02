@@ -201,17 +201,16 @@ namespace Plan{
             
             if(this.cpm != undefined){
                 contents.appendChild(this.createPropertyDisplay('Production cycles:', this.cpm.toFixed(2), 'c/m'));
-
-                contents.appendChild(this.createPropertyDisplay('Cycle time:', (1/(this.cpm/60)).toFixed(2), 's'));
                 
                 var time = this.recipeVariant.energy_required;
                 if(!time)
                     time = 0.5; 
                     
                 var speed =  this.type.crafting_speed * this.totalEffect.speed.bonus;
-                var cycle_time = time / speed / 60 ; 
-                var producers = this.cpm * cycle_time;
+                var cycle_time = time / speed; 
+                var producers = this.cpm * (cycle_time / 60);
                 contents.appendChild(this.createPropertyDisplay('Producers needed:', producers.toFixed(2), ''));
+                contents.appendChild(this.createPropertyDisplay('Cycle time:', cycle_time.toFixed(2), 's'));
             }
             
             var modeditor = new Ui.ModuleEditor(this);
