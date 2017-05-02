@@ -4,7 +4,7 @@ namespace Ui{
         constructor(public plan: Plan.GamePlan){}
         
         imageUrl(item: GameData.Item): string{
-            return this.plan.data.prefix + item.icon;
+            return this.plan.data.prefix + GameData.iconForItem(item);
         }
     }
     
