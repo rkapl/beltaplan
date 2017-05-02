@@ -201,6 +201,8 @@ namespace Plan{
             
             if(this.cpm != undefined){
                 contents.appendChild(this.createPropertyDisplay('Production cycles:', this.cpm.toFixed(2), 'c/m'));
+
+                contents.appendChild(this.createPropertyDisplay('Cycle time:', (1/(this.cpm/60)).toFixed(2), 's'));
                 
                 var time = this.recipeVariant.energy_required;
                 if(!time)
