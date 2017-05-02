@@ -14,7 +14,8 @@ namespace Plan{
         }
         itemTransferFunction(){
             var c = this.participant.toConnections.get(this.needsItem);
-            c.consumption = this.consumption;
+            if(c)
+                c.consumption = this.consumption;
         }
         serialize(json){
             super.serialize(json);
