@@ -32,6 +32,7 @@ namespace Plan{
             }
             return t;
         }
+
         forAllFromConnections(cb: (c: Connection) => void){
             this.fromConnections.forEach((set) => {
                set.forEach((c) => {
