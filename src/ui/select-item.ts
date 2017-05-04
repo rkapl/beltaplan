@@ -3,8 +3,8 @@ namespace Ui{
     class ItemAdapter implements DialogItemAdapter<GameData.Item>{
         constructor(public plan: Plan.GamePlan){}
         
-        imageUrl(item: GameData.Item): string{
-            return this.plan.data.prefix + GameData.iconForItem(item);
+        createImage(parent: Util.HObject, item: GameData.Item): Util.Widget{
+            return new Icons.IconView(parent, Icons.forItem(this.plan, item));
         }
     }
     

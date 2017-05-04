@@ -27,16 +27,20 @@ namespace GameData{
         speed: number;
     }
     
-    export interface Icon{
+    export interface IconHolder{
+        icon: string;
+        icons: IconLayer[];
+        name: string;
+    }
+
+    export interface IconLayer{
         icon: string;
         tint: any;
     }
 
-    export interface Item{
-        icon: string;
+    export interface Item extends IconHolder{
         name: string;
         type: string;
-        icons: Icon[];
     }
     
     export interface Module extends Item{
@@ -56,8 +60,7 @@ namespace GameData{
         bonus: number;
     }
     
-    export interface Producer{
-        icon: string;
+    export interface Producer extends IconHolder{
         type: string;   
         name: string;
         crafting_speed: number;
@@ -97,9 +100,8 @@ namespace GameData{
         y: number;
         scale: number;
     }
-    export interface Recipe{
+    export interface Recipe extends IconHolder{
         enabled: boolean;
-        icon: string;
         name: string;
         type: string;
         category: string;
@@ -115,6 +117,10 @@ namespace GameData{
         name: string,
         type: string
     }
+    export interface RGBA{
+        r, g, b, a: number;    
+    }
+
     export interface RecipeResult extends FactorioQuantity{}
     export interface RecipeIngredient extends FactorioQuantity{}
 
@@ -122,20 +128,6 @@ namespace GameData{
         if(r.normal)
             return r.normal;
         return <RecipeVariant><any> r;
-    }
-    export function iconForItem(i: Item){
-        // TODO: handle tint
-        if(i.icons)
-            return i.icons[0].icon;
-        return i.icon;
-    }
-    export function iconForRecipe(r: Recipe, data:Data): string{
-        if(r.icon){
-            return r.icon;
-        }else{
-            var item = data.item[recipeVariant(r).results[0].name];
-            return iconForItem(item);
-        }
     }
     export function entityTileWidth(producer: Producer){
         if(producer.tile_width)

@@ -2,12 +2,15 @@
 namespace Ui{
     class ModuleAdapter implements DialogItemAdapter<GameData.Module|DeleteModule>{
         constructor(public plan: Plan.GamePlan){}
-        
-        imageUrl(mod: GameData.Module|DeleteModule): string{
+        createImage(parent: Util.HObject, mod: GameData.Module|DeleteModule): Util.Widget{
             if(mod instanceof DeleteModule){
-                return 'img/delete.svg';
+                var widget = new Util.Widget(parent);
+                var img = new Image();
+                img.src = 'img/delete.svg';
+                widget.html = img;
+                return widget;
             }else{
-                return this.plan.data.prefix + (<GameData.Module>mod).icon;
+                return new Icons.IconView(parent, Icons.forItem(this.plan, <GameData.Module>mod));
             }  
         }
     }
@@ -39,12 +42,13 @@ namespace Ui{
         }
     }
     
-    export class ModuleEditor {
+    export class ModuleEditor extends Util.Widget{
         html: HTMLDivElement;
         direct: HTMLImageElement[] = [];
         beacon: HTMLImageElement[] = [];
         addBeaconImg: HTMLImageElement;
-        constructor(public producer: Plan.Factory){
+        constructor(parent: Util.HObject,public producer: Plan.Factory){
+            super(parent);
             this.html = document.createElement('div');
             
             var mods = producer.modules;

@@ -206,7 +206,7 @@ button.fill{
 .recipe{
     text-align: center;
 }
-.recipe img{
+.recipe canvas{
     vertical-align: middle;
     padding-right: 0.5em;
     padding-left: 0.3em;
@@ -225,7 +225,7 @@ button.fill{
 .bus-contents .amount{
     text-align: right;
 }
-.bus-contents img{
+.bus-contents canvas{
     width: 24px;
     height: 24px;
     vertical-align: middle;
@@ -314,10 +314,10 @@ button.fill{
     margin-bottom: 0.5em;
 }
 
-#dialog-contents.select-dialog img{
+#dialog-contents.select-dialog canvas{
     padding: 2px;
 }
-#dialog-contents.select-dialog img:hover{
+#dialog-contents.select-dialog canvas:hover{
     background-color: green;
 }
 #dialog-contents h2{

@@ -1,6 +1,26 @@
 ///<reference path="tile.ts" />
 
 namespace Plan{    
+    class BlockInfoBox extends InfoBox{
+        public constructor(public block: Block){
+            super(block);
+
+            var header = document.createElement('h3');
+            header.textContent = this.block.item.name + " filter";
+            this.htmlContent.appendChild(header);
+            
+            var itemButton = document.createElement('button');
+            itemButton.textContent = 'Change filtered item';
+            itemButton.onclick =  () => {
+                var d = new Ui.SelectItem(this.block.plan, ()=>{
+                    this.block.setItem(d.selected);
+                    this.block.updateIncludingNeighbours();
+                });
+                d.show();
+            };
+            this.htmlContent.appendChild(itemButton);
+        }
+    }
     export class Block extends ItemTile implements BusParticipant{
         participant: BusParticipantData = new BusParticipantData();
         blocksItem: GameData.Item;
@@ -10,6 +30,9 @@ namespace Plan{
         }
         itemTransferFunction(){
             
+        }
+        createInfo(): InfoBox{
+            return new BlockInfoBox(this);
         }
         serialize(json){
             super.serialize(json);
@@ -26,25 +49,6 @@ namespace Plan{
         }
         isBusParticipant():boolean{
             return true;
-        }
-        showInfo(box: HTMLElement){
-            super.showInfo(box);
-            var contents = this.showInfoStandardButtons();
-            
-            var header = document.createElement('h3');
-            header.textContent = this.item.name + " filter";
-            contents.appendChild(header);
-            
-            var itemButton = document.createElement('button');
-            itemButton.textContent = 'Change filtered item';
-            itemButton.onclick =  () => {
-                var d = new Ui.SelectItem(this.plan, ()=>{
-                    this.setItem(d.selected);
-                    this.updateIncludingNeighbours();
-                });
-                d.show();
-            };
-            contents.appendChild(itemButton);
         }
     }
 }

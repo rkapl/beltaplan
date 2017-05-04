@@ -1,7 +1,39 @@
 namespace Util{
-    export class Set{
-        
+    // something like QObject, mainly to keep track of the hierarchy and do automatic cleanup
+    // GC is fine, but sometimes you have to unregister listeners and JS does not yet have sufficient weakmap support
+    export class HObject{
+        public children: HObject[] = [];
+
+        public constructor(public parent: HObject){
+            if(parent)
+                parent.children.push(this);
+        }
+
+        public setParent(parent: HObject){
+            if(this.parent == parent)
+                return;
+            if(this.parent)
+                this.parent.children.splice(this.parent.children.indexOf(this), 1);
+            this.parent = parent;
+            parent.children.push(this);
+        }
+
+        public destroy(){
+            for(var c of this.children){
+                c.destroy();
+            }
+        }
     }
+
+    export class Widget extends HObject{
+        public html: HTMLElement;
+        public destroy(){
+            super.destroy();
+            if(this.html.parentNode)
+                this.html.parentNode.removeChild(this.html);
+        }
+    }
+
     export class Vector{
         constructor(public x: number, public y:number){
         }

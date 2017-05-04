@@ -4,12 +4,13 @@ namespace Ui{
     export interface DialogCallback{
         (d: Dialog) : void;
     }
-    export class Dialog{
+    export class Dialog extends Util.HObject{
         // TODO: fix focus leaving this homemade dialog and other event weirdness
         html: HTMLElement;
         htmlDialog: HTMLElement;
         private preventClosingFlag: boolean;
         constructor(public cb: DialogCallback){
+            super(null);
             this.html = document.getElementById('dialog-contents');
             this.html.className = '';
         }
@@ -35,7 +36,7 @@ namespace Ui{
                 });
                 window.addEventListener('keydown', (ev) => {
                      if(ev.keyCode == 27){
-                        this.hide();
+                        this.destroy();
                     }
                 });
                 document.getElementById('dialog-close-button').addEventListener('click', () => {
@@ -69,12 +70,12 @@ namespace Ui{
         closeOk(){
             this.preventClosingFlag = false;
             this.cb(this);
-            this.hide();
+            this.destroy();
         }
         closeCancel(){
-            this.hide();
+            this.destroy();
         }
-        hide(){
+        destroy(){
             if(this.preventClosingFlag){
                 this.preventClosingFlag = false;
                 return;                

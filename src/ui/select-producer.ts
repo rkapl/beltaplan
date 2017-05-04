@@ -3,8 +3,8 @@ namespace Ui{
     class ProducerAdapter implements DialogItemAdapter<GameData.Producer>{
         constructor(public plan: Plan.GamePlan){}
         
-        imageUrl(producer: GameData.Producer): string{
-            return this.plan.data.prefix + producer.icon;
+        createImage(parent: Util.HObject, item: GameData.Producer): Util.Widget{
+            return new Icons.IconView(parent, Icons.forItem(this.plan, item));
         }
     }
     

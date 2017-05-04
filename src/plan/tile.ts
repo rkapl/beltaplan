@@ -23,86 +23,14 @@ namespace Plan{
         serialize(destination);
         deserialize(from);
     }
-    
-    export class TileBase implements Ui.InfoBoxContents{
-        // position in tile coordinates (set by Plan)
-        public position: Util.Vector;
-        public orientation: Util.Orientation;
-        // possibly null, if not viewport
-        html: HTMLElement;
-        viewport: Ui.Viewport;
-        
-        // the UI peer can be shifted, because it is larger than the actual tile
-        shift: Util.Vector; 
-        // infobox, if shown
-        infoBox: HTMLElement = null;
-        elementType: string;
-        
-        constructor(public plan: GamePlan){
-            this.position = undefined;          
-            this.orientation = Util.Orientation.NORTH;
-            this.shift = new Util.Vector(0,0);
-        }
-        
-        serialize(json){
-            json.x = this.position.x;
-            json.y = this.position.y;
-            json.orientation = this.orientation;
-        }
-        deserialize(json){
-            this.orientation = json.orientation;
-        }
-        
-        showInfo(box: HTMLElement){
-            this.infoBox = box;
-        }
-        
-        hideInfo(){
-            while(this.infoBox.hasChildNodes())
-                this.infoBox.removeChild(this.infoBox.lastChild)
-            this.infoBox = null;
-        }
-        
-        createHtml(vp: Ui.Viewport){
-            if(this.html)
-                throw "Peer already set";
-                
-            this.html = this.createHtmlElement();
-            this.html.classList.add("tile");
-            this.viewport = vp;
-            this.viewport.html.appendChild(this.html);
-            this.updateHtml();
-        }
-        
-        removeHtml(){
-            this.viewport.html.removeChild(this.html);
-            this.viewport = null;
-            this.html = null;
-        }
-        
-        createHtmlElement(): HTMLElement{
-            var canvas = document.createElement('canvas');
-            canvas.width = canvas.height = Ui.Sizes.TILE_SIZE;
-            return canvas;
-        }
-        
-        updateInfo(){
-            var box = this.infoBox;
-            this.hideInfo();
-            this.showInfo(box);
-        }
-        
-        showInfoHeader(){
-            var title = document.createElement('h3');
-            title.textContent = this.constructor['name'];
-            this.infoBox.appendChild(title);
-        }
-        drawInCenter(ctx: CanvasRenderingContext2D, img: HTMLImageElement, o: Util.Orientation){
-            ctx.save();
-            ctx.translate(-this.shift.x + Ui.Sizes.TILE_SIZE/2, -this.shift.y + Ui.Sizes.TILE_SIZE/2);
-            ctx.rotate(o*Math.PI/2);
-            ctx.drawImage(img, - img.width/2, - img.height/2);
-            ctx.restore();
+
+    export class InfoBox extends Util.Widget{
+        public htmlContent: HTMLElement;
+        public htmlFooter: HTMLElement;
+        public constructor(public tile: TileBase){
+            super(tile);
+            this.html = document.createElement('div');
+            this.showInfoStandardButtons();
         }
         createNumberInputField(text: string, binding: string, unit: string){
             var row = document.createElement('div');
@@ -113,15 +41,15 @@ namespace Plan{
             row.appendChild(label);
             
             var input = document.createElement('input');
-            input.value = this[binding];
+            input.value = this.tile[binding];
             input.type = 'number';
             input.min = '0';
             input.step = 'any';
             input.onchange = () => {
-                this[binding] = parseFloat(input.value);
+                this.tile[binding] = parseFloat(input.value);
                 if(this.html)
-                    this.updateHtml();
-                this.notifyChange();
+                    this.tile.updateHtml();
+                this.tile.notifyChange();
             };
             row.appendChild(input);
             
@@ -150,34 +78,133 @@ namespace Plan{
             return div;
         }
         // make a footer with buttons, return a div where a content should be placed
-        showInfoStandardButtons(footerCallback?: (footer: HTMLElement) => void): HTMLDivElement{
-            var footer = document.createElement('div');
+        showInfoStandardButtons(){
+            var footer = this.htmlFooter = document.createElement('div');
             
             footer.classList.add('footer');
             var rotate = new Image();
             rotate.src = 'img/rotate.svg';
             rotate.classList.add('action-button');
             rotate.classList.add('d1');
-            rotate.addEventListener('click', ()=> this.rotate());
+            rotate.addEventListener('click', ()=> this.tile.rotate());
             footer.appendChild(rotate);
             
             var deleteButton = new Image();
             deleteButton.src = 'img/delete.svg';
             deleteButton.classList.add('action-button');
             deleteButton.classList.add('d2');
-            deleteButton.addEventListener('click', ()=> this.plan.set(this.position, null));
+            deleteButton.addEventListener('click', ()=> this.tile.plan.set(this.tile.position, null));
             footer.appendChild(deleteButton);
             
             var contents = document.createElement('div');
             contents.classList.add('contents');
-            this.infoBox.appendChild(contents);
-            this.infoBox.appendChild(footer);
+            this.html.appendChild(contents);
+            this.html.appendChild(footer);
             
-            if(footerCallback)
-                footerCallback(footer);
-            
-            return contents;
+            this.htmlContent = contents;
         }
+    }
+    export class DefaultInfoBox extends InfoBox{
+        public constructor(tile: TileBase){
+            super(tile);
+            var title = document.createElement('h3');
+            title.textContent = this.constructor['name'];
+            this.htmlContent.appendChild(title);
+        }
+    }
+
+    export class TileBase extends Util.HObject implements Ui.InfoBoxContents, Icons.LoadListener{
+        // position in tile coordinates (set by Plan)
+        public position: Util.Vector;
+        public orientation: Util.Orientation;
+        // possibly null, if not viewport
+        html: HTMLElement;
+        viewport: Ui.Viewport;
+        
+        // the UI peer can be shifted, because it is larger than the actual tile
+        shift: Util.Vector; 
+        // infobox, if shown
+        infoBox: InfoBox;
+        infoBoxParent: HTMLElement;
+        elementType: string;
+        
+        constructor(public plan: GamePlan){
+            super(null);
+            this.position = undefined;          
+            this.orientation = Util.Orientation.NORTH;
+            this.shift = new Util.Vector(0,0);
+        }
+        loaded(icon){
+            if(this.html)
+                this.updateHtml();
+        }
+        serialize(json){
+            json.x = this.position.x;
+            json.y = this.position.y;
+            json.orientation = this.orientation;
+        }
+        deserialize(json){
+            this.orientation = json.orientation;
+        }
+        
+        showInfo(box: HTMLElement){
+            this.infoBoxParent = box;
+            this.infoBox = this.createInfo();
+            this.infoBoxParent.appendChild(this.infoBox.html);
+        }
+        
+        hideInfo(){
+            this.infoBoxParent = null;
+            this.infoBox.destroy();
+            this.infoBox = null;
+        }
+
+        createInfo(): InfoBox{
+            return new DefaultInfoBox(this);
+        }
+        
+        createHtml(vp: Ui.Viewport){
+            if(this.html)
+                throw "Peer already set";
+                
+            this.html = this.createHtmlElement();
+            this.html.classList.add("tile");
+            this.viewport = vp;
+            this.viewport.html.appendChild(this.html);
+            this.updateHtml();
+        }
+        
+        removeHtml(){
+            this.viewport.html.removeChild(this.html);
+            this.viewport = null;
+            this.html = null;
+        }
+        
+        createHtmlElement(): HTMLElement{
+            var canvas = document.createElement('canvas');
+            canvas.width = canvas.height = Ui.Sizes.TILE_SIZE;
+            return canvas;
+        }
+        
+        updateInfo(){
+            var box = this.infoBoxParent;
+            this.hideInfo();
+            this.showInfo(box);
+        }
+        drawInCenterCb(ctx: CanvasRenderingContext2D, w: number, h: number, o: Util.Orientation, cb: () => void){
+            ctx.save();
+            ctx.translate(-this.shift.x + Ui.Sizes.TILE_SIZE/2, -this.shift.y + Ui.Sizes.TILE_SIZE/2);
+            ctx.rotate(o*Math.PI/2);
+            ctx.translate(- w/2, - h/2);
+            cb();
+            ctx.restore();
+        }
+        drawInCenter(ctx: CanvasRenderingContext2D, img: HTMLImageElement, o: Util.Orientation){
+            this.drawInCenterCb(ctx, img.width, img.height,o, () => {
+                ctx.drawImage(img, 0, 0);
+            });
+        }
+        
         notifyChange(){
             if(this.position)
                 this.plan.notifyXY(this.position.x, this.position.y, true);
@@ -220,26 +247,32 @@ namespace Plan{
             }
         }
         destroy(){
+            super.destroy();
             if(this.html)
                 this.removeHtml();
         }
     }
     
-    export class ItemTile extends TileBase{   
+    export class ItemTile extends TileBase implements Icons.LoadListener{   
         item: GameData.Item;
-        itemIcon: HTMLImageElement;
+        itemIcon: Icons.Icon;
         constructor(plan: GamePlan){
             super(plan);
         }
         setItem(item: GameData.Item){
+            this.clearItem();
             this.item = item;
-            this.itemIcon = new Image();
-            this.itemIcon.onload = () => {
-                if(this.html)
-                    this.updateHtml();
-            };
-            this.itemIcon.src = this.plan.data.prefix + this.item.icon;
+            this.itemIcon = Icons.forItem(this.plan, item);
+            this.itemIcon.addLoadListener(this);
             this.notifyChange();
+        }
+        destroy(){
+            super.destroy()
+            this.clearItem();
+        }
+        private clearItem(){
+            if(this.itemIcon)
+                this.itemIcon.removeLoadListener(this);
         }
         serialize(json){
             super.serialize(json);
@@ -264,7 +297,7 @@ namespace Plan{
             ctx.drawImage(this.viewport.resourceOrientationArrow, -Ui.Sizes.TILE_SIZE/2, -Ui.Sizes.TILE_SIZE/2);
             ctx.restore();
             
-            ctx.drawImage(this.itemIcon, Ui.Sizes.FACTORIO_TILE_SIZE, Ui.Sizes.FACTORIO_TILE_SIZE);
+            this.itemIcon.draw(ctx, Ui.Sizes.FACTORIO_TILE_SIZE, Ui.Sizes.FACTORIO_TILE_SIZE, Ui.Sizes.FACTORIO_TILE_SIZE, Ui.Sizes.FACTORIO_TILE_SIZE);
             this.overlay(ctx)
         }
         overlay(ctx: CanvasRenderingContext2D){}

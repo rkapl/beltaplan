@@ -26,9 +26,11 @@ namespace Ui{
         constructor(html: HTMLElement){
             this.html = html;
             this.resourceOrientationArrow = new Image();
+            this.resourceOrientationArrow.onload = () => this.updateAll();
             this.resourceOrientationArrow.src = 'img/orientation-arrow.svg';
             
             this.resourceRecipeOverlayDecal = new Image();
+            this.resourceRecipeOverlayDecal.onload = () => this.updateAll();
             this.resourceRecipeOverlayDecal.src = 'img/recipe-overlay-decal.svg';
             
             this.resourceBlock = new Image();
@@ -67,6 +69,9 @@ namespace Ui{
             });
             this.resizeBackground();
             this.updateScroll();
+        }
+        private updateAll(){
+            this.plan.forAllTiles((t: Plan.Tile) => t.updateHtml());
         }
         private ignoreKeypressInside(tag: HTMLElement){
             return tag.tagName.toLowerCase() == 'input' || tag.tagName.toLowerCase() == 'textarea';

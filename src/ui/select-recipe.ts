@@ -3,8 +3,8 @@ namespace Ui{
     class RecipeAdapter implements DialogItemAdapter<GameData.Recipe>{
         constructor(public plan: Plan.GamePlan){}
         
-        imageUrl(recipe: GameData.Recipe): string{
-            return this.plan.data.prefix + GameData.iconForRecipe(recipe, this.plan.data);
+        createImage(parent: Util.HObject, item: GameData.Recipe): Util.Widget{
+            return new Icons.IconView(parent, Icons.forRecipe(this.plan, item));
         }
     }
     

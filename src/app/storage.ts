@@ -55,7 +55,7 @@ namespace App{
             newPlanButton.style.display = 'inline-block';
             newPlanButton.onclick = () => {
                 App.loadData(planVersionCombo.value, (data) => {
-                    create(new Plan.GamePlan(data), () => this.hide());
+                    create(new Plan.GamePlan(data), () => this.destroy());
                 });
             };
             newPlanBar.appendChild(newPlanButton);

@@ -1,4 +1,26 @@
 namespace Plan{
+    class SourceInfoBox extends InfoBox{
+        public constructor(public source: Source){
+            super(source);
+            var header = document.createElement('h3');
+            header.textContent = this.source.providesItem.name + " source";
+            this.htmlFooter.appendChild(header);
+            
+            var itemButton = document.createElement('button');
+            itemButton.textContent = 'Change produced item';
+            itemButton.onclick =  () => {
+                var d = new Ui.SelectItem(this.source.plan, ()=>{
+                    this.source.setItem(d.selected);
+                    this.source.updateIncludingNeighbours();
+                });
+                d.show();
+            };
+            this.htmlContent.appendChild(itemButton);
+            
+            this.htmlContent.appendChild(this.createPropertyDisplay('Provides', 
+                this.source.participant.fromConnectionsConsumption(this.source.providesItem).toFixed(), 'i/m'));
+        }
+    }
     
     /* Tile producing a specified item.
      *
@@ -6,7 +28,7 @@ namespace Plan{
      */
     export class Source extends ItemTile implements BusParticipant{
         participant: BusParticipantData = new BusParticipantData();
-        private providesItem: GameData.Item;
+        providesItem: GameData.Item;
         
         constructor(plan: GamePlan){
             super(plan);
@@ -30,27 +52,8 @@ namespace Plan{
         overlay(ctx: CanvasRenderingContext2D){
             
         }
-        showInfo(box: HTMLElement){
-            super.showInfo(box);
-            var contents = this.showInfoStandardButtons();
-            
-            var header = document.createElement('h3');
-            header.textContent = this.providesItem.name + " source";
-            contents.appendChild(header);
-            
-            var itemButton = document.createElement('button');
-            itemButton.textContent = 'Change produced item';
-            itemButton.onclick =  () => {
-                var d = new Ui.SelectItem(this.plan, ()=>{
-                    this.setItem(d.selected);
-                    this.updateIncludingNeighbours();
-                });
-                d.show();
-            };
-            contents.appendChild(itemButton);
-            
-            contents.appendChild(this.createPropertyDisplay('Provides', 
-                this.participant.fromConnectionsConsumption(this.providesItem).toFixed(), 'i/m'));
+        createInfo(): InfoBox{
+            return new SourceInfoBox(this);
         }
     }
 }

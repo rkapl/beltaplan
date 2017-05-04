@@ -63,18 +63,88 @@ namespace Plan{
        public direct: GameData.Module[];
        public beacon: GameData.Module[];
    }
+
+   class FactoryInfoBox extends InfoBox{
+       public constructor(public factory: Factory){
+            super(factory);
+            
+            var title = document.createElement('h3');
+            title.textContent = this.factory.type.name;
+            this.htmlContent.appendChild(title);
+            
+            var recipe = document.createElement('div');
+            recipe.classList.add('recipe');
+            this.htmlContent.appendChild(recipe);
+            
+            for(var needs of this.factory.recipeVariant.ingredients){
+                var ingredient = document.createElement('span');
+                var item = this.factory.plan.data.item[needs.name];
+                var img = new Icons.IconView(this, Icons.forItem(this.factory.plan, item))
+                ingredient.appendChild(document.createTextNode(needs.amount.toString()));
+                ingredient.appendChild(img.html);
+                if(this.factory.isMissing(item))
+                    ingredient.classList.add("missing");
+                recipe.appendChild(ingredient);
+            }
+            
+            recipe.appendChild(document.createTextNode(" " + String.fromCharCode(0x25b6) + " "));
+            
+            for(var provides of this.factory.recipeVariant.results){
+                var result = document.createElement('span');
+                var img = new Icons.IconView(this, Icons.forItem(this.factory.plan, this.factory.plan.data.item[provides.name]));
+
+                result.appendChild(document.createTextNode(provides.amount.toString()));
+                result.appendChild(img.html);
+                recipe.appendChild(result);
+            }
+            
+            var recipeButton = document.createElement('button');
+            recipeButton.textContent = 'Change recipe';
+            recipeButton.onclick =  () => {
+                var d = new Ui.SelectRecipe(this.factory.plan,
+                    (r: GameData.Recipe) => GameData.canProducerProduceRecipe(this.factory.type, r), 
+                    ()=>{
+                        this.factory.setRecipe(d.selected);
+                        this.factory.updateIncludingNeighbours();
+                    });
+                d.show();
+            };
+            this.htmlContent.appendChild(recipeButton);
+            
+            if(this.factory.recipeVariant.results.length == 1){
+                this.htmlContent.appendChild(this.createNumberInputField('Over-production:', 'consumption', 'i/m'));
+            }
+            
+            if(this.factory.cpm != undefined){
+                this.htmlContent.appendChild(this.createPropertyDisplay('Production cycles:', this.factory.cpm.toFixed(2), 'c/m'));
+                
+                var time = this.factory.recipeVariant.energy_required;
+                if(!time)
+                    time = 0.5; 
+                    
+                var speed =  this.factory.type.crafting_speed * this.factory.totalEffect.speed.bonus;
+                var cycle_time = time / speed; 
+                var producers = this.factory.cpm * (cycle_time / 60);
+                this.htmlContent.appendChild(this.createPropertyDisplay('Producers needed:', producers.toFixed(2), ''));
+                this.htmlContent.appendChild(this.createPropertyDisplay('Cycle time:', cycle_time.toFixed(2), 's'));
+            }
+            
+            var modeditor = new Ui.ModuleEditor(this, this.factory);
+            this.htmlContent.appendChild(modeditor.html);
+       }
+   }
    
-   export class Factory extends TileBase implements BusParticipant{
+   export class Factory extends TileBase implements BusParticipant, Icons.LoadListener{
         private animation: Ui.Animation;
         recipe: GameData.Recipe;
         recipeVariant: GameData.RecipeVariant
         participant: BusParticipantData = new BusParticipantData();
-        private recipeIcon: HTMLImageElement;
+        private recipeIcon: Icons.Icon;
         type: GameData.Producer;
         modules: FactoryModules;
         totalEffect: GameData.ModuleEffect;
-        private consumption: number = 0;
-        private cpm: number;
+        consumption: number = 0;
+        cpm: number;
         
         constructor(plan: GamePlan, type: GameData.Producer){
             super(plan);
@@ -147,92 +217,34 @@ namespace Plan{
                 // JSON compatibility
                 this.consumption = 0;
         }
-        showInfo(box: HTMLElement){
-            super.showInfo(box);
-            var contents = this.showInfoStandardButtons();
-            
-            var title = document.createElement('h3');
-            title.textContent = this.type.name;
-            contents.appendChild(title);
-            
-            var recipe = document.createElement('div');
-            recipe.classList.add('recipe');
-            contents.appendChild(recipe);
-            
-            for(var needs of this.recipeVariant.ingredients){
-                var ingredient = document.createElement('span');
-                var img = new Image();
-                var item = this.plan.data.item[needs.name];
-                img.src= this.plan.data.prefix + item.icon;
-                ingredient.appendChild(document.createTextNode(needs.amount.toString()));
-                ingredient.appendChild(img);
-                if(this.isMissing(item))
-                    ingredient.classList.add("missing");
-                recipe.appendChild(ingredient);
-            }
-            
-            recipe.appendChild(document.createTextNode(" " + String.fromCharCode(0x25b6) + " "));
-            
-            for(var provides of this.recipeVariant.results){
-                var result = document.createElement('span');
-                var img = new Image();
-                img.src = this.plan.data.prefix + this.plan.data.item[provides.name].icon;
-                result.appendChild(document.createTextNode(provides.amount.toString()));
-                result.appendChild(img);
-                recipe.appendChild(result);
-            }
-            
-            var recipeButton = document.createElement('button');
-            recipeButton.textContent = 'Change recipe';
-            recipeButton.onclick =  () => {
-                var d = new Ui.SelectRecipe(this.plan,
-                    (r: GameData.Recipe) => GameData.canProducerProduceRecipe(this.type, r), 
-                    ()=>{
-                        this.setRecipe(d.selected);
-                        this.updateIncludingNeighbours();
-                    });
-                d.show();
-            };
-            contents.appendChild(recipeButton);
-            
-            if(this.recipeVariant.results.length == 1){
-                contents.appendChild(this.createNumberInputField('Over-production:', 'consumption', 'i/m'));
-            }
-            
-            if(this.cpm != undefined){
-                contents.appendChild(this.createPropertyDisplay('Production cycles:', this.cpm.toFixed(2), 'c/m'));
-                
-                var time = this.recipeVariant.energy_required;
-                if(!time)
-                    time = 0.5; 
-                    
-                var speed =  this.type.crafting_speed * this.totalEffect.speed.bonus;
-                var cycle_time = time / speed; 
-                var producers = this.cpm * (cycle_time / 60);
-                contents.appendChild(this.createPropertyDisplay('Producers needed:', producers.toFixed(2), ''));
-                contents.appendChild(this.createPropertyDisplay('Cycle time:', cycle_time.toFixed(2), 's'));
-            }
-            
-            var modeditor = new Ui.ModuleEditor(this);
-            contents.appendChild(modeditor.html);
+        createInfo(): InfoBox{
+            return new FactoryInfoBox(this);
         }
         isBusParticipant(): boolean{
             return true;
         }
         setRecipe(recipe: GameData.Recipe){
+            this.clearRecipe();
             this.recipe = recipe;
             this.recipeVariant = GameData.recipeVariant(recipe);
             this.participant.provides = new Set(); 
             for(var result of this.recipeVariant.results){
                 this.participant.provides.add(this.plan.data.item[result.name]);
             }
-            this.recipeIcon = new Image();
-            this.recipeIcon.onload = () => this.updateState();
-            this.recipeIcon.src = this.plan.data.prefix + GameData.iconForRecipe(recipe, this.plan.data);
+            this.recipeIcon = Icons.forRecipe(this.plan, recipe);
+            this.recipeIcon.addLoadListener(this);
             this.participant.needs = new Set();
             for(var ingredient of GameData.recipeVariant(recipe).ingredients){
                 this.participant.needs.add(this.plan.data.item[ingredient.name]);
             }
+        }
+        private clearRecipe(){
+            if(this.recipeIcon)
+                this.recipeIcon.removeLoadListener(this);
+        }
+        destroy(){
+            super.destroy();
+            this.clearRecipe();
         }
         updateHtml(){
             super.updateHtml();
@@ -246,9 +258,12 @@ namespace Plan{
             this.animation.prepare(canvas, scale, this.orientation, this.shift);
             this.animation.render(canvas, this.orientation);
             
+            var iconSize = 32;
             this.drawInCenter(ctx, this.viewport.resourceRecipeOverlayDecal, 0)
             this.drawInCenter(ctx, this.viewport.resourceOrientationArrow, this.orientation);
-            this.drawInCenter(ctx, this.recipeIcon, 0);
+            this.drawInCenterCb(ctx, iconSize, iconSize, 0, () => {
+                this.recipeIcon.draw(ctx, 0,0, iconSize, iconSize);
+            });
             
             if(this.isAnyMissing())
                 this.drawInCenter(ctx, this.viewport.resourceAlert, 0);

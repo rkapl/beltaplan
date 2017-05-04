@@ -1,6 +1,6 @@
 namespace Ui{
     export interface DialogItemAdapter<T>{
-        imageUrl(item: T): string;
+        createImage(parent: Util.HObject, item: T): Util.Widget;
     }
     
     export class Selector<T> extends Dialog{
@@ -10,6 +10,8 @@ namespace Ui{
         imageContainer: HTMLDivElement;
         filtered: HTMLImageElement[] = [];
         bottomBar: HTMLDivElement;
+
+        icons: Util.Widget[] = [];
         
         constructor(
             cb: DialogCallback, 
@@ -44,9 +46,9 @@ namespace Ui{
             this.filtered = [];
             for(var itemName of keys){
                 var item  = items[itemName];
-                var img = new Image();
+                var itemView = adapter.createImage(this, item);
+                var img = <HTMLImageElement> itemView.html;
                 img.title = itemName;
-                img.src = adapter.imageUrl(item);
                 ((item) => {
                     img.addEventListener('click', (ev)=>{
                        this.selected = item;

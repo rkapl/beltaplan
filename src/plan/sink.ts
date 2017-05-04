@@ -1,12 +1,34 @@
 namespace Plan{
-    
+
+    class SinkInfoBox extends InfoBox{
+        public constructor(public sink: Sink){
+            super(sink);
+            
+            var header = document.createElement('h3');
+            header.textContent = this.sink.needsItem.name + " sink";
+            this.htmlContent.appendChild(header);
+            
+            var itemButton = document.createElement('button');
+            itemButton.textContent = 'Change consumed item';
+            itemButton.onclick =  () => {
+                var d = new Ui.SelectItem(this.sink.plan, ()=>{
+                    this.sink.setItem(d.selected);
+                    this.sink.updateIncludingNeighbours();
+                });
+                d.show();
+            };
+            this.htmlContent.appendChild(itemButton);
+            
+            this.htmlContent.appendChild(this.createNumberInputField('Consumption:', 'consumption', 'i/m'));
+        }
+    }
     /* Tile producing a specified item.
      *
      * Typically used when a certain item is provided by some external factory.
      */
     export class Sink extends ItemTile implements BusParticipant{
         participant: BusParticipantData = new BusParticipantData();
-        private needsItem: GameData.Item;
+        needsItem: GameData.Item;
         private consumption: number = 5;
         
         constructor(plan: GamePlan){
@@ -48,26 +70,8 @@ namespace Plan{
             ctx.fillStyle = 'black';   
             ctx.fillText(this.consumption + " i/m", Ui.Sizes.TILE_SIZE/2 , Ui.Sizes.TILE_SIZE - 16);
         }
-        showInfo(box: HTMLElement){
-            super.showInfo(box);
-            var contents = this.showInfoStandardButtons();
-            
-            var header = document.createElement('h3');
-            header.textContent = this.needsItem.name + " sink";
-            contents.appendChild(header);
-            
-            var itemButton = document.createElement('button');
-            itemButton.textContent = 'Change consumed item';
-            itemButton.onclick =  () => {
-                var d = new Ui.SelectItem(this.plan, ()=>{
-                    this.setItem(d.selected);
-                    this.updateIncludingNeighbours();
-                });
-                d.show();
-            };
-            contents.appendChild(itemButton);
-            
-            contents.appendChild(this.createNumberInputField('Consumption:', 'consumption', 'i/m'));
+        createInfo(): InfoBox{
+            return new SinkInfoBox(this);
         }
     }
 }

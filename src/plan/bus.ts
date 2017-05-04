@@ -15,6 +15,71 @@ namespace Plan{
     // name of the belt we want to show transport speeds relative to
     var transportSpeedDisplay : string = null; 
     
+    class BusInfoBox extends InfoBox{
+        public constructor(public bus: Bus){
+            super(bus);
+            
+            var changeBelt = new Image();
+            changeBelt.src = 'img/belt.svg';
+            changeBelt.classList.add('action-button');
+            changeBelt.classList.add('d3');
+            changeBelt.onclick = ()=>{
+                var availableBelts:string[] = [];
+                for(var belt in this.bus.plan.data.settings.belt){
+                    availableBelts.push(belt);
+                }
+                var i = availableBelts.indexOf(transportSpeedDisplay);
+                i = (i + 2) % (availableBelts.length + 1) - 1;
+                transportSpeedDisplay = availableBelts[i];
+                this.bus.updateInfo();
+            };
+            this.htmlFooter.appendChild(changeBelt);
+            
+            var beltSettings = this.bus.plan.data.settings.belt[transportSpeedDisplay];
+            
+            var table = document.createElement('table');
+            table.classList.add('bus-contents');
+            this.bus.items.forEach((connections, item) => {
+                var tr = document.createElement('tr');
+                
+                var amountTd = document.createElement('td');
+                amountTd.classList.add('amount');
+                var amount = 0;
+                connections.forEach((c) => amount += c.consumption);
+                if(beltSettings && item.type != 'fluid'){
+                    amount /= beltSettings.speed * 60;
+                    amountTd.textContent = amount.toFixed(2);
+                }else{
+                    amountTd.textContent = amount.toFixed(1);
+                }
+                tr.appendChild(amountTd);
+                
+                var unitTd = document.createElement('td');
+                if(beltSettings && item.type != 'fluid'){
+                    var beltImg = document.createElement('img');
+                    beltImg.src = this.bus.plan.data.prefix + this.bus.plan.data.item[transportSpeedDisplay].icon;
+                    unitTd.appendChild(beltImg);
+                }else{
+                    unitTd.classList.add('unit');
+                    unitTd.textContent = 'i/m';
+                }
+                tr.appendChild(unitTd);
+                              
+                var iconTd = document.createElement('td');
+                var icon = new Icons.IconView(this, Icons.forItem(this.bus.plan, item));
+                iconTd.appendChild(icon.html);
+                tr.appendChild(iconTd);
+                
+                var nameTd = document.createElement('td');
+                nameTd.textContent = item.name;
+                tr.appendChild(nameTd);
+                
+                table.appendChild(tr);
+            });
+            this.htmlContent.appendChild(table);
+        }
+    }
+
     export class Bus extends TileBase{
         
         // padding between then belt and tile (for the UI)
@@ -30,7 +95,7 @@ namespace Plan{
         // data from the bus calculation algorithms all items transported on this tile
         items: Map<GameData.Item, Set<Connection>> =  new Map<GameData.Item, Set<Connection>>();
         blocked: Set<GameData.Item> = new Set();       
-        itemIcons: HTMLImageElement[] = [];
+        itemIcons: Icons.Icon[] = [];
         
         // used by the graph algorithms
         visited: boolean;
@@ -168,10 +233,9 @@ namespace Plan{
                 var y = i % gridSize;
                 var iconSize = (Ui.Sizes.TILE_SIZE - border*2)/gridSize;
                 var grow = iconSize/10;
-                
-                ctx.drawImage(this.itemIcons[i],
+                this.itemIcons[i].draw(ctx, 
                     this.border + x * iconSize - grow, this.border + y * iconSize - grow,
-                    iconSize + grow*2, iconSize + grow*2);
+                    iconSize + grow*2, iconSize + grow*2)
             }                            
             ctx.restore();
         }
@@ -185,6 +249,8 @@ namespace Plan{
         // called by update_bus after the bus is computed
         // to get best results, call in bfs-like order
         updateIcons(){
+            this.clearIcons();
+
             this.itemIcons = new Array();
             // select some input whose ordering we will try to maintain
             // we chose the one with most icons
@@ -236,14 +302,17 @@ namespace Plan{
                 this.itemIcons = reorderedIcons;
             }
         }
-        private imageForItem(item: GameData.Item){
-            var img = new Image();
-            img.src = this.plan.data.prefix + item.icon;
-            img.onload = () => {
-                if(this.viewport) 
-                    this.updateHtml();
+        private clearIcons(){
+            for(var i of this.itemIcons){
+                i.removeLoadListener(this);
             }
-            (<FactorioItemMixin><any>img).factorioItem = item;
+        }
+        destroy(){
+            super.destroy();
+            this.clearIcons();
+        }
+        private imageForItem(item: GameData.Item){
+            var img = Icons.forItem(this.plan, item);
             return img;
         }
         private rotateContext(ctx: CanvasRenderingContext2D, o: Util.Orientation){
@@ -272,67 +341,10 @@ namespace Plan{
         }
         showInfo(box: HTMLElement){
             super.showInfo(box);
-            var contents = this.showInfoStandardButtons((footer)=>{
-                var changeBelt = new Image();
-                changeBelt.src = 'img/belt.svg';
-                changeBelt.classList.add('action-button');
-                changeBelt.classList.add('d3');
-                changeBelt.onclick = ()=>{
-                    var availableBelts:string[] = [];
-                    for(var belt in this.plan.data.settings.belt){
-                        availableBelts.push(belt);
-                    }
-                    var i = availableBelts.indexOf(transportSpeedDisplay);
-                    i = (i + 2) % (availableBelts.length + 1) - 1;
-                    transportSpeedDisplay = availableBelts[i];
-                    this.updateInfo();
-                };
-                footer.appendChild(changeBelt);
-            });
             
-            var beltSettings = this.plan.data.settings.belt[transportSpeedDisplay];
-            
-            var table = document.createElement('table');
-            table.classList.add('bus-contents');
-            this.items.forEach((connections, item) => {
-                var tr = document.createElement('tr');
-                
-                var amountTd = document.createElement('td');
-                amountTd.classList.add('amount');
-                var amount = 0;
-                connections.forEach((c) => amount += c.consumption);
-                if(beltSettings && item.type != 'fluid'){
-                    amount /= beltSettings.speed * 60;
-                    amountTd.textContent = amount.toFixed(2);
-                }else{
-                    amountTd.textContent = amount.toFixed(1);
-                }
-                tr.appendChild(amountTd);
-                
-                var unitTd = document.createElement('td');
-                if(beltSettings && item.type != 'fluid'){
-                    var beltImg = document.createElement('img');
-                    beltImg.src = this.plan.data.prefix + this.plan.data.item[transportSpeedDisplay].icon;
-                    unitTd.appendChild(beltImg);
-                }else{
-                    unitTd.classList.add('unit');
-                    unitTd.textContent = 'i/m';
-                }
-                tr.appendChild(unitTd);
-                              
-                var iconTd = document.createElement('td');
-                var icon = document.createElement('img');;
-                icon.src = this.plan.data.prefix + item.icon;
-                iconTd.appendChild(icon);
-                tr.appendChild(iconTd);
-                
-                var nameTd = document.createElement('td');
-                nameTd.textContent = item.name;
-                tr.appendChild(nameTd);
-                
-                table.appendChild(tr);
-            });
-            contents.appendChild(table);
+        }
+        createInfo():InfoBox{
+            return new BusInfoBox(this);
         }
     }
     
