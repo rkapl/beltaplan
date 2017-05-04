@@ -104,12 +104,12 @@ namespace LibStorage.Local{
         }
          open(name: string, mode: LibStorage.OpenMode): Document{
              if(this._listing[name]){
-                 if(mode == 'create-or-open' || mode == 'open')
+                 if(mode == 'open-or-create' || mode == 'open')
                     return <Document>this._listing[name];
                  else
                     throw new LibStorage.NameTakenException();
              }else{
-                 if(mode == 'create-or-open' || mode == 'create'){
+                 if(mode == 'open-or-create' || mode == 'create'){
                      var doc = new Document(this, name);
                      this._listing[name] = doc;
                      return doc;
