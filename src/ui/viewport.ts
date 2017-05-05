@@ -71,7 +71,8 @@ namespace Ui{
             this.updateScroll();
         }
         private updateAll(){
-            this.plan.forAllTiles((t: Plan.Tile) => t.updateHtml());
+            if(this.plan)
+                this.plan.forAllTiles((t: Plan.Tile) => t.updateHtml());
         }
         private ignoreKeypressInside(tag: HTMLElement){
             return tag.tagName.toLowerCase() == 'input' || tag.tagName.toLowerCase() == 'textarea';

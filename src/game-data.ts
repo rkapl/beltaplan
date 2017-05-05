@@ -118,7 +118,10 @@ namespace GameData{
         type: string
     }
     export interface RGBA{
-        r, g, b, a: number;    
+        r: number;
+        g: number;
+        b: number;
+        a: number;
     }
 
     export interface RecipeResult extends FactorioQuantity{}
