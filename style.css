@@ -225,7 +225,7 @@ button.fill{
 .bus-contents .amount{
     text-align: right;
 }
-.bus-contents canvas{
+.bus-contents canvas,.bus-contents img {
     width: 24px;
     height: 24px;
     vertical-align: middle;
