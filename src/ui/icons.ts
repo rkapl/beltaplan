@@ -18,7 +18,7 @@ namespace Icons{
         loaded(object);
     }
 
-    export class Icon{
+    export class Icon {
         listeners: Set<LoadListener> = new Set();
         loaded: boolean;
         w: number;
@@ -108,7 +108,7 @@ namespace Icons{
 
         var icon;
         if(r.icon || r.icons){
-            icon = forItem(plan, this);
+            icon = forItem(plan, r);
         }else{
             icon = forItem(plan, plan.data.item[GameData.recipeVariant(r).results[0].name])
         }
