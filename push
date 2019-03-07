@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -eu
+
+DEST="root@rkapl.cz:/www/rkapl.cz/beltaplan"
+DIR=..
+
+tsc -sourcemap --out main.js -p src
+
+DIR="$(dirname "${BASH_SOURCE[0]}")/$DIR"
+TEMP_FILE="`mktemp`"
+git ls-files > "$TEMP_FILE"
+echo main.js >> "$TEMP_FILE"
+echo main.js.map >> "$TEMP_FILE"
+rsync -vz --files-from="$TEMP_FILE" . -e ssh "$DEST"
+
+rm "$TEMP_FILE"
+
+
+
