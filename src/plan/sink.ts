@@ -66,7 +66,7 @@ namespace Plan{
                 
             ctx.font = "bold 15px Lato";
             ctx.textAlign = "center";
-            ctx.textBaseline = "center";
+            ctx.textBaseline = "middle";
             ctx.fillStyle = 'black';   
             ctx.fillText(this.consumption + " i/m", Ui.Sizes.TILE_SIZE/2 , Ui.Sizes.TILE_SIZE - 16);
         }

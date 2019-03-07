@@ -271,7 +271,7 @@ namespace Plan{
             if(this.recipeVariant.results.length == 1 && this.consumption > 0){
                 ctx.font = "bold 15px Lato";
                 ctx.textAlign = "center";
-                ctx.textBaseline = "center";
+                ctx.textBaseline = "middle";
                 ctx.fillStyle = 'white';
                 ctx.strokeStyle = 'black';
                 ctx.lineWidth = 3;

@@ -3,7 +3,7 @@ namespace Ui{
         createImage(parent: Util.HObject, item: T): Util.Widget;
     }
     
-    export class Selector<T> extends Dialog{
+    export class Selector<T> extends Dialog {
         selected: T;
         selectionEvent: MouseEvent;
         filterInput: HTMLInputElement;

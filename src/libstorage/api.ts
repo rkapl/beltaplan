@@ -61,7 +61,7 @@ namespace LibStorage{
         
         get(success: (data: Blob) => void): Operation;
         set(data: Blob, success: () => void): Operation;
-        remove(success: (data: Blob) => void): Operation;
+        remove(success: () => void): Operation;
         rename(newName: string, success: () => void): Operation;
     }
 }

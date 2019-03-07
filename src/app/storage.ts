@@ -299,7 +299,7 @@ namespace App{
         var fr = new FileReader();
         fr.onload = () => {
             try{
-                var json = JSON.parse(fr.result);
+                var json = JSON.parse(fr.result as string);
                 var document;
                 if(json['saveData'] != 'beltaplan'){
                     warning("Not a valid plan");

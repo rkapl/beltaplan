@@ -49,7 +49,7 @@ namespace LibStorage.Local{
                 
             return true;
         }
-        getLocation(optionsGeneric: any){
+        getLocation(optionsGeneric: any) {
             var opts = <Options>optionsGeneric;
             return new Location(this, opts.prefix);
         }
@@ -64,7 +64,7 @@ namespace LibStorage.Local{
         }
     }
     
-    export class Location implements LibStorage.Location{
+    export class Location implements LibStorage.Location {
         public _storage: Storage;
         public _listing: LibStorage.FileListing;
         public _completePrefix: string;
@@ -102,7 +102,7 @@ namespace LibStorage.Local{
             fireEvent(this._provider, 'connectFinished', op)
             success();
         }
-         open(name: string, mode: LibStorage.OpenMode): Document{
+         open(name: string, mode: LibStorage.OpenMode): LibStorage.Document{
              if(this._listing[name]){
                  if(mode == 'open-or-create' || mode == 'open')
                     return <Document>this._listing[name];
@@ -176,7 +176,7 @@ namespace LibStorage.Local{
             };
             return op;
         }
-        remove(success: () => void): Operation{
+        remove(success: () => void): Operation {
             var op = {
                 type: <LibStorage.OperationType> 'get',
                 provider: this._provider,
