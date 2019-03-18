@@ -193,7 +193,7 @@ defines = {
         },
         technology_difficulty = {
             normal = 2,
-            expensive = 3 
+            expensive = 3
         }
     }
 }
@@ -227,7 +227,7 @@ local filtered = {
 }
 
 local wanted_items = {
-    ['express-transport-belt'] = true, 
+    ['express-transport-belt'] = true,
     ['fast-transport-belt'] = true,
     ['basic-transport-belt'] = false,
     ['transport-belt'] = false
@@ -310,6 +310,15 @@ collect_items(all_items, 'blueprint')
 collect_items(all_items, 'blueprint-book')
 collect_items(all_items, 'rail-planner')
 collect_items(all_items, 'item-with-entity-data')
+
+-- also include items that are products of rocket launch
+for k, item in pairs(all_items) do
+    if item['rocket_launch_product'] then
+        local product_name = item['rocket_launch_product'][1]
+        print("Including rocket launch product: " .. product_name)
+        wanted_items[product_name] = true
+    end
+end
 
 -- copy over items referenced by recipe, including their icons
 for item, b in pairs(wanted_items) do
